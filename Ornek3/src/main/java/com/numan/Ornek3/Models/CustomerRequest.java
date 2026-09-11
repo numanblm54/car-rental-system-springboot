@@ -1,30 +1,16 @@
 package com.numan.Ornek3.Models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
-
-@NoArgsConstructor
 @AllArgsConstructor
-@Entity
-public class Customer {
-
-	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
-    
+@NoArgsConstructor
+public class CustomerRequest {
+	
 	private String name;
 	private String surName;
 	private Integer age;
 	private String nationalCardNo;
-	
-	@Enumerated(EnumType.STRING)
 	private DriversLicenseTypes driversLicenseType;
 	
 	public String getName() {
@@ -45,25 +31,17 @@ public class Customer {
 	public void setAge(Integer age) {
 		this.age = age;
 	}
-	
-	public Integer getId() {
-		return id; 
-	}
 	public String getNationalCardNo() {
 		return nationalCardNo;
 	}
 	public void setNationalCardNo(String nationalCardNo) {
 		this.nationalCardNo = nationalCardNo;
 	}
-	
 	public DriversLicenseTypes getDriversLicenseType() {
 		return driversLicenseType;
 	}
-	
-	public void setDriversLicenseType(DriversLicenseTypes driversLicenseType){
-		this.driversLicenseType=driversLicenseType;
+	public void setDriversLicenseType(DriversLicenseTypes driversLicenseType) {
+		this.driversLicenseType = driversLicenseType;
 	}
-	
-	
 
 }

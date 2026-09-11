@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.numan.Ornek3.Models.Customer;
+
+import com.numan.Ornek3.Models.CustomerRequest;
+import com.numan.Ornek3.Models.CustomerResponse;
 import com.numan.Ornek3.Services.CustomerService;
 import org.springframework.web.bind.annotation.PutMapping;
 
@@ -26,27 +28,27 @@ public class CustomerController {
 	
 
 	@GetMapping("/all-customers-list")
-	public List<Customer> getAllCustomer(){
+	public List<CustomerResponse> getAllCustomer(){
 		return customerService.getAllCustomers();
 	}
 	
 	@GetMapping("/customer/{id}")
-	public Customer getCustomerById(@PathVariable int id){
-		return customerService.getCustomerById(id);
+	public CustomerResponse getCustomerById(@PathVariable int id){
+		return customerService.getCustomerResponseById(id);
 	}
 	
 	@GetMapping("/customer-getby-name/{name}")
-	public List<Customer> getCustomerByName(@PathVariable (name = "name")  String name){
+	public List<CustomerResponse> getCustomerByName(@PathVariable String name){
 		return customerService.getCustomerByName(name);
 	}
 	
 	@GetMapping("/customer-getby-surname")
-	public List<Customer> getCustomerBySurName(@RequestParam String surName){
+	public List<CustomerResponse> getCustomerBySurName(@RequestParam String surName){
 		return customerService.getCustomerBySurName(surName);
 	}
 	
 	@PostMapping("/add-customer")
-	public Customer addCustomer(@RequestBody Customer customer) {
+	public CustomerResponse addCustomer(@RequestBody CustomerRequest customer) {
 		return customerService.addCustomer(customer);
 	}
 	
@@ -55,9 +57,9 @@ public class CustomerController {
 		customerService.deleteCustomer(id);
 	}
 	
-	@PutMapping("/update-customer")
-	public void putCustomer(@RequestBody Customer customer) {
-		customerService.updateCustomer(customer);
+	@PutMapping("/update-customer/{id}")
+	public CustomerResponse putCustomer(@PathVariable Integer id,@RequestBody CustomerRequest customerRequest) {
+		return customerService.updateCustomer(id,customerRequest);
 	}
 
 }
