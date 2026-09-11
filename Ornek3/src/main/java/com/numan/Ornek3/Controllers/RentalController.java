@@ -7,8 +7,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.numan.Ornek3.Models.Car;
 import com.numan.Ornek3.Models.Customer;
-import com.numan.Ornek3.Models.RentalRecord;
+import com.numan.Ornek3.Models.EndingRentalResponse;
 import com.numan.Ornek3.Models.RentalRequest;
+import com.numan.Ornek3.Models.StartingRentalResponse;
 import com.numan.Ornek3.Services.CarService;
 import com.numan.Ornek3.Services.CustomerService;
 import com.numan.Ornek3.Services.RentalService;
@@ -34,25 +35,25 @@ public class RentalController {
 	}
 	
 	@GetMapping("/get-all-records")
-	public List<RentalRecord> GetAllRecords(){
+	public List<EndingRentalResponse> GetAllRecords(){
 		return rentalService.GetAllRecords();
 	}
 	
 	@GetMapping("/get-record-byid/{id}")
-	public RentalRecord GetRecordById(@PathVariable Integer id){
-		return rentalService.GetRentalRecordById(id);
+	public EndingRentalResponse GetRecordById(@PathVariable Integer id){
+		return rentalService.GetRentalRecordResponseById(id);
 	}
 	
 	@PostMapping("/start-rental")
-	public RentalRecord RentalStart(@RequestBody RentalRequest rentalRequest) {
+	public StartingRentalResponse RentalStart(@RequestBody RentalRequest rentalRequest) {
 		Car car=carService.getCarById(rentalRequest.getCarId());
 		Customer customer=customerService.getCustomerById(rentalRequest.getCustomerId());
 		return rentalService.StartRental(car,customer);
 	}
 	
 	@PutMapping("/end-rental/{id}")
-	public void EndRental(@PathVariable Integer id,@RequestParam Integer finishKm) {
-		rentalService.EndRental(id,finishKm);
+	public EndingRentalResponse EndRental(@PathVariable Integer id,@RequestParam Integer finishKm) {
+		return rentalService.EndRental(id,finishKm);
 		
 	}
 	

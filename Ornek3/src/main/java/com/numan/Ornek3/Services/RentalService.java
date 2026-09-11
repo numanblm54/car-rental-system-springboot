@@ -3,6 +3,7 @@ package com.numan.Ornek3.Services;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -10,8 +11,10 @@ import com.numan.Ornek3.Models.Car;
 import com.numan.Ornek3.Models.Customer;
 import com.numan.Ornek3.Models.DailyRentalPrice;
 import com.numan.Ornek3.Models.DriversLicenseTypes;
+import com.numan.Ornek3.Models.EndingRentalResponse;
 import com.numan.Ornek3.Models.MyException;
 import com.numan.Ornek3.Models.RentalRecord;
+import com.numan.Ornek3.Models.StartingRentalResponse;
 import com.numan.Ornek3.Models.VehicleTypes;
 import com.numan.Ornek3.Repositories.RentalRecordRepository;
 
@@ -37,15 +40,27 @@ public class RentalService {
 		return rentalRecordRepository.findById(id)
 				.orElseThrow(() -> new MyException("The record wasn't found.")); 
 	}
-	
-	public List<RentalRecord> GetAllRecords(){
-		return rentalRecordRepository.findAll();
+	public EndingRentalResponse GetRentalRecordResponseById(Integer id) {
+		RentalRecord rentalRecord=GetRentalRecordById(id);
+		EndingRentalResponse response=new EndingRentalResponse(rentalRecord);
+		return response;
+
 	}
 	
-	public RentalRecord StartRental(Car car, Customer customer) {
+	public List<EndingRentalResponse> GetAllRecords(){
+		List<EndingRentalResponse> responseList=new ArrayList<>();
+		List<RentalRecord> recordList=rentalRecordRepository.findAll();
+		for (RentalRecord rentalRecord:recordList) {
+			EndingRentalResponse response=new EndingRentalResponse(rentalRecord);
+			responseList.add(response);
+		}
+		return responseList;
+				
+	}
+	
+	public StartingRentalResponse StartRental(Car car, Customer customer) {
 		
 //		Optional<Car> carOptional = carRepository.findById(car.getId());
-//
 //		if (carOptional.isEmpty()) {
 //		    throw new MyException("The car wasn't found.");
 		
@@ -53,14 +68,11 @@ public class RentalService {
 		customerService.getCustomerById(customer.getId());
 		dailyRentalPriceService.getDailyRentalPriceByCarIdAndIsItCurrentTrue(car.getId());
 			
-		
-
 		if (customer.getDriversLicenseType() == DriversLicenseTypes.A) {
 
 			if (car.getVehicleType() == VehicleTypes.Car || car.getVehicleType() == VehicleTypes.Truck) {
 		            throw new MyException("A person who has a type A driver's license cannot drive a car or a truck.");
 		    }
-
 		} 
 		    
 		else if (customer.getDriversLicenseType() == DriversLicenseTypes.B) {
@@ -78,8 +90,6 @@ public class RentalService {
 			}
 		}
 		
-		
-		
 		DailyRentalPrice priceList = dailyRentalPriceService.getPriceListDailyRentalPrice(car.getId());
 		
         RentalRecord rentalRecord = new RentalRecord();
@@ -88,13 +98,13 @@ public class RentalService {
         rentalRecord.setStartingKm(car.getKm());
         rentalRecord.setStartingRentalDate(LocalDateTime.now());
         rentalRecord.setPriceList(priceList.getPrice());
-      
         car.setIsItActive(false);
-        
-       return  rentalRecordRepository.save(rentalRecord);
+        rentalRecordRepository.save(rentalRecord);
+        StartingRentalResponse response=new StartingRentalResponse(rentalRecord);
+        return response; 
 	}
 	
-	public void EndRental(Integer id, Integer finishKm) {
+	public EndingRentalResponse EndRental(Integer id, Integer finishKm) {
 		
 
 		RentalRecord rrecord=GetRentalRecordById(id);
@@ -113,9 +123,10 @@ public class RentalService {
 		        rrecord.getEndingRentalDate()
 		        )+1;
 		rrecord.setTotalRentalPrice(rrecord.getPriceList().multiply(BigDecimal.valueOf(days)));
-
-		
 		rentalRecordRepository.save(rrecord);
+		
+        EndingRentalResponse response=new EndingRentalResponse(rrecord);
+        return response; 
 	}
 	
 	
