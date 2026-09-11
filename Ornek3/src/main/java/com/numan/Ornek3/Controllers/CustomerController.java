@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.numan.Ornek3.Models.CustomerRequest;
 import com.numan.Ornek3.Models.CustomerResponse;
 import com.numan.Ornek3.Services.CustomerService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.PutMapping;
 
 
@@ -48,7 +51,7 @@ public class CustomerController {
 	}
 	
 	@PostMapping("/add-customer")
-	public CustomerResponse addCustomer(@RequestBody CustomerRequest customer) {
+	public CustomerResponse addCustomer(@Valid @RequestBody CustomerRequest customer) {
 		return customerService.addCustomer(customer);
 	}
 	
@@ -58,7 +61,7 @@ public class CustomerController {
 	}
 	
 	@PutMapping("/update-customer/{id}")
-	public CustomerResponse putCustomer(@PathVariable Integer id,@RequestBody CustomerRequest customerRequest) {
+	public CustomerResponse putCustomer(@Valid @PathVariable Integer id,@RequestBody CustomerRequest customerRequest) {
 		return customerService.updateCustomer(id,customerRequest);
 	}
 

@@ -9,10 +9,10 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class RentalRequest {
+public class CarResponse {
 	
-	private Integer customerId;
-	
-	private Integer carId;
-	
+	private String name;
+	private Integer model;
+	private VehicleTypes vehicleType;
+
 }

@@ -1,12 +1,18 @@
 package com.numan.Ornek3.Services;
 
+import java.util.ArrayList;
 import java.util.List;
+
+
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import com.numan.Ornek3.Repositories.CarRepository;
 import com.numan.Ornek3.Models.Car;
+import com.numan.Ornek3.Models.CarRequest;
+import com.numan.Ornek3.Models.CarResponse;
 import com.numan.Ornek3.Models.MyException;
-import com.numan.Ornek3.Models.VehicleTypes;
+
 
 @Service
 public class CarService {
@@ -16,16 +22,29 @@ public class CarService {
 		this.carRepository=carRepository;
 	}
 	
-	public Car addCar(Car car) {
-		if(car.getModel()<1990) {
+	public CarResponse addCar(CarRequest carRequest) {
+		if(carRequest.getModel()<1990) {
 			throw new MyException("The car model year can't be smaller than 1990");
 		}
+		Car car =new Car();
+		BeanUtils.copyProperties(carRequest, car);
 		car.setIsItActive(true);
-		return carRepository.save(car);
+		carRepository.save(car);
+		
+		CarResponse response=new CarResponse();
+		BeanUtils.copyProperties(car,response);
+		return response;
 	}
 	
-	public List<Car> getAllCars() {
-		return carRepository.findAll();
+	public List<CarResponse> getAllCars() {
+		List<Car> carList=carRepository.findAll();
+		List<CarResponse> carResponseList=new ArrayList<>();
+		for ( Car car :carList) {
+			CarResponse carResponse= new CarResponse();
+			BeanUtils.copyProperties(car, carResponse);
+			carResponseList.add(carResponse);
+		}
+		return carResponseList;
 	}
 	
 	 public Car getCarById(Integer id) {
@@ -33,29 +52,33 @@ public class CarService {
 				 .orElseThrow(() -> new MyException("The car wasn't found."));
 	 }
 	 
-	 public void deleteCar(int id) {
-		 carRepository.deleteById(id);
+	 public CarResponse getCarResponseById(Integer id) {
+		return doCopy(getCarById(id));
 	 }
 	 
-	 public Car updateCar(Car car) {
-		 Car oldCar=carRepository.findById(car.getId())
-				 .orElseThrow(() -> new MyException("The car wasn't found."));
-		 
-		 oldCar.setName(car.getName());
-		 oldCar.setModel(car.getModel());
-		 oldCar.setKm(car.getKm());
-		 oldCar.setVehicleType(car.getVehicleType());
-		 
-		 return carRepository.save(oldCar);
+	 public void deleteCar(Integer id) {
+		 Car car = getCarById(id);
+		 carRepository.delete(car);
 	 }
 	 
-	 public Car updateVehicleType(VehicleTypes vehicleType,Integer id) {
+	 public CarResponse updateCarById(Integer id, CarRequest carRequest) {
+		 Car oldCar= getCarById(id);
 		 
-		 Car oldCar=carRepository.findById(id)
-				 .orElseThrow(() -> new RuntimeException("The car wasn't found."));
+		 BeanUtils.copyProperties(carRequest, oldCar);
+//		 oldCar.setName(car.getName());
+//		 oldCar.setModel(car.getModel());
+//		 oldCar.setKm(car.getKm());
+//		 oldCar.setVehicleType(car.getVehicleType());
+
+		 return doCopy(oldCar);
 		 
-		 oldCar.setVehicleType(vehicleType);
-		 return carRepository.save(oldCar);
+	 }
+	 
+	 public CarResponse doCopy(Car car) {
+		 CarResponse response=new CarResponse();
+		 BeanUtils.copyProperties(car, response);
+		 return response;
+	
 	 }
 
 }

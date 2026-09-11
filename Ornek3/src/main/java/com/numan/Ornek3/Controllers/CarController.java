@@ -2,9 +2,13 @@ package com.numan.Ornek3.Controllers;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.numan.Ornek3.Models.Car;
-import com.numan.Ornek3.Models.VehicleTypes;
+
+import com.numan.Ornek3.Models.CarRequest;
+import com.numan.Ornek3.Models.CarResponse;
+
 import com.numan.Ornek3.Services.CarService;
+
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -27,39 +31,28 @@ public class CarController {
 	}
 	
 	@PostMapping("/add-Car")
-	public void addCar(@RequestBody Car car) {
-		carService.addCar(car);
+	public CarResponse addCar(@Valid @RequestBody CarRequest carRequest) {
+		return carService.addCar(carRequest);
 	}
 	
 	@GetMapping("/getAllCars")
-	public List<Car> getAllCars() {
+	public List<CarResponse> getAllCars() {
 		return carService.getAllCars();
 	}
 	
 	@GetMapping("/getOneCar/{id}")
-	public Car getCarById(@PathVariable int id) {
-		return carService.getCarById(id);
+	public CarResponse getCarById(@PathVariable int id) {
+		return carService.getCarResponseById(id);
 	}
 	
 	@DeleteMapping("/delete-car/{id}")
-	public void deleteCar(@PathVariable int id) {
+	public void deleteCar(@PathVariable Integer id) {
 		carService.deleteCar(id);
 	}
 	
-	@PutMapping("/update-car")
-	public Car updateCar(@RequestBody Car car) {
-		return carService.updateCar(car);
+	@PutMapping("/update-car/{id}")
+	public CarResponse updateCarById(@PathVariable Integer id,@RequestBody CarRequest carRequest) {
+		return carService.updateCarById(id,carRequest);
 	}
 	
-	@PutMapping("/update-car-type/{id}")
-	public Car updateVehicleType(@RequestBody VehicleTypes vehicleType,@PathVariable Integer id) {
-		return carService.updateVehicleType(vehicleType,id);
-	}
-	
-	
-	
-
-	
-	
-
 }

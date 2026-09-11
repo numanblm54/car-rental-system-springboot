@@ -7,11 +7,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Entity
 public class Customer {
 
@@ -19,6 +23,7 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
     
+	
 	private String name;
 	private String surName;
 	private Integer age;
@@ -27,43 +32,4 @@ public class Customer {
 	@Enumerated(EnumType.STRING)
 	private DriversLicenseTypes driversLicenseType;
 	
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public String getSurName() {
-		return surName;
-	}
-	public void setSurName(String surName) {
-		this.surName = surName;
-	}
-	public Integer getAge() {
-		return age;
-	}
-	public void setAge(Integer age) {
-		this.age = age;
-	}
-	
-	public Integer getId() {
-		return id; 
-	}
-	public String getNationalCardNo() {
-		return nationalCardNo;
-	}
-	public void setNationalCardNo(String nationalCardNo) {
-		this.nationalCardNo = nationalCardNo;
-	}
-	
-	public DriversLicenseTypes getDriversLicenseType() {
-		return driversLicenseType;
-	}
-	
-	public void setDriversLicenseType(DriversLicenseTypes driversLicenseType){
-		this.driversLicenseType=driversLicenseType;
-	}
-	
-	
-
 }

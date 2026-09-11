@@ -100,7 +100,7 @@ public class RentalService {
 		RentalRecord rrecord=GetRentalRecordById(id);
 		
 		if(finishKm<rrecord.getStartingKm()) {
-			throw new MyException("The ending kilometre cannot be less than starting kilometre");
+			throw new MyException("The ending kilometer cannot be less than starting kilometer");
 		}
 		
 		rrecord.setEndingKm(finishKm);

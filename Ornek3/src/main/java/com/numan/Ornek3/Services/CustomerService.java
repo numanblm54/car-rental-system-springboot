@@ -49,28 +49,40 @@ public class CustomerService {
 	}
 
 	public CustomerResponse addCustomer(CustomerRequest customer) {
-		if (customer.getAge() == null) {
-		    throw new MyException("The customer's age cannot be null.");
-		}
-
-		if (customer.getAge() < 18) {
-		    throw new MyException("The customer's age cannot be less than 18.");
-		}
-
-		if (customer.getNationalCardNo() == null) {
-		    throw new MyException("The national card number cannot be null.");
-		}
-
-		if (customer.getNationalCardNo().length() != 11) {
-		    throw new MyException("The national card number must be 11 digits long.");
-		}
-
-		for (int i = 0; i < customer.getNationalCardNo().length(); i++) {
-		    if (!Character.isDigit(customer.getNationalCardNo().charAt(i))) {
-		        throw new MyException("The national card number must contain only digits.");
-		    }
-		}
-
+		
+//		if (customer.getName() == null) {
+//		    throw new MyException("The customer's name cannot be null.");
+//		}
+//		
+//		if (customer.getSurName() == null) {
+//		    throw new MyException("The customer's surname cannot be null.");
+//		}
+//		
+//		if (customer.getDriversLicenseType() == null) {
+//		    throw new MyException("The customer's driver licanse cannot be null.");
+//		}
+//		if (customer.getAge() == null) {
+//		    throw new MyException("The customer's age cannot be null.");
+//		}
+//
+//		if (customer.getAge() < 18) {
+//		    throw new MyException("The customer's age cannot be less than 18.");
+//		}
+//
+//		if (customer.getNationalCardNo() == null) {
+//		    throw new MyException("The national card number cannot be null.");
+//		}
+//
+//		if (customer.getNationalCardNo().length() != 11) {
+//		    throw new MyException("The national card number must be 11 digits long.");
+//		}
+//
+//		for (int i = 0; i < customer.getNationalCardNo().length(); i++) {
+//		    if (!Character.isDigit(customer.getNationalCardNo().charAt(i))) {
+//		        throw new MyException("The national card number must contain only digits.");
+//		    }
+//		}
+//
 		if (getCustomerByNationalCardNo(customer.getNationalCardNo()) != null) {
 		    throw new MyException("There is a customer who uses this national card no.");
 		}
@@ -145,12 +157,10 @@ public class CustomerService {
 		
 	}
 	
-	
 	public CustomerResponse doCopy(Customer customer){
 		CustomerResponse response=new CustomerResponse();
 		BeanUtils.copyProperties(customer, response);
 		return response;
-		
 	}
 	
 }

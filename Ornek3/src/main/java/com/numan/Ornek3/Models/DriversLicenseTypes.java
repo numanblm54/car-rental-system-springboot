@@ -4,6 +4,5 @@ public enum DriversLicenseTypes {
     A,
     B,
     C
-    
 
 }

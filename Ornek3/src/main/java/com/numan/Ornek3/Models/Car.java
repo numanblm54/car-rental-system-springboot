@@ -5,12 +5,16 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Entity
 public class Car {
 	
@@ -30,48 +34,4 @@ public class Car {
 	
 	private Boolean isItActive;
 	
-	public String  getName() {
-		return name;
-	}
-	
-	public void setName(String nameg) {
-		this.name=nameg;
-	}
-
-	public int getModel() {
-		return model;
-	}
-
-	public void setModel(int model) {
-		this.model = model;
-	}
-
-	public int getKm() {
-		return km;
-	}
-
-	public void setKm(int km) {
-		this.km = km;
-	}
-
-	
-	public Integer getId() {
-		return id;
-	}
-
-	public VehicleTypes getVehicleType() {
-		return vehicleType;
-	}
-
-	public void setVehicleType(VehicleTypes vehicleType) {
-		this.vehicleType = vehicleType;
-	}
-
-	public Boolean getIsItActive() {
-		return isItActive;
-	}
-
-	public void setIsItActive(Boolean isItActive) {
-		this.isItActive =isItActive;
-	}
 }
