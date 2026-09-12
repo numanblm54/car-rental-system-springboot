@@ -66,7 +66,7 @@ public class RentalService {
 		
 		carService.getCarById(car.getId());
 		customerService.getCustomerById(customer.getId());
-		dailyRentalPriceService.getDailyRentalPriceByCarIdAndIsItCurrentTrue(car.getId());
+		DailyRentalPrice priceList=dailyRentalPriceService.getCurrentPrice(car.getId());
 			
 		if (customer.getDriversLicenseType() == DriversLicenseTypes.A) {
 
@@ -90,7 +90,7 @@ public class RentalService {
 			}
 		}
 		
-		DailyRentalPrice priceList = dailyRentalPriceService.getDailyRentalPriceByCarIdAndIsItCurrentTrue(car.getId());
+		//DailyRentalPrice priceList = dailyRentalPriceService.getCurrentPrice(car.getId());
 		
         RentalRecord rentalRecord = new RentalRecord();
         rentalRecord.setCar(car);
