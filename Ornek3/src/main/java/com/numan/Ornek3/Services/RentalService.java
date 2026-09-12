@@ -90,7 +90,7 @@ public class RentalService {
 			}
 		}
 		
-		DailyRentalPrice priceList = dailyRentalPriceService.getPriceListDailyRentalPrice(car.getId());
+		DailyRentalPrice priceList = dailyRentalPriceService.getDailyRentalPriceByCarIdAndIsItCurrentTrue(car.getId());
 		
         RentalRecord rentalRecord = new RentalRecord();
         rentalRecord.setCar(car);
@@ -129,7 +129,4 @@ public class RentalService {
         return response; 
 	}
 	
-	
-	
-
 }

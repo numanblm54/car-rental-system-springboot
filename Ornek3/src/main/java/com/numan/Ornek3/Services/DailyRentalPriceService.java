@@ -2,10 +2,12 @@ package com.numan.Ornek3.Services;
 
 import java.math.BigDecimal;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import com.numan.Ornek3.Models.Car;
 import com.numan.Ornek3.Models.DailyRentalPrice;
+import com.numan.Ornek3.Models.DailyRentalPriceResponse;
 import com.numan.Ornek3.Models.MyException;
 import com.numan.Ornek3.Repositories.DailyRentalPriceRepository;
 
@@ -24,33 +26,43 @@ public class DailyRentalPriceService {
 	 DailyRentalPrice price=dailyRentalPriceRepository.findByCarIdAndIsItCurrentTrue(id);
 	 if(price==null) {
 		 throw new MyException("There is no current price for this vehicle");
+		 
 	 }
-	 return price;
-				
+	 return price;			
 	}
 	
-	public void AddDailyRentalPrice(Integer carId, BigDecimal dailyPrice) {
-		Car car= carService.getCarById(carId);
+	public DailyRentalPrice getDailyRentalPriceByCarIdAndIsItCurrentTruee(Integer id) {
 		
-		DailyRentalPrice oldDailyRentalPrice=dailyRentalPriceRepository.findByCarIdAndIsItCurrentTrue(carId);
-
+		 DailyRentalPrice price=dailyRentalPriceRepository.findByCarIdAndIsItCurrentTrue(id);
+		 if(price==null) {
+			return null;
+			 
+		 }
+		 return price;			
+		}
+	
+	public DailyRentalPriceResponse AddDailyRentalPrice(Integer carId, BigDecimal dailyPrice) {
+		Car car= carService.getCarById(carId);
+		DailyRentalPrice dailyRentalPrice=new DailyRentalPrice();
+		DailyRentalPrice oldDailyRentalPrice=getDailyRentalPriceByCarIdAndIsItCurrentTruee(carId);
 		if(oldDailyRentalPrice!=null) {
 			oldDailyRentalPrice.setIsItCurrent(false);
 			dailyRentalPriceRepository.save(oldDailyRentalPrice);
 		}
 		
-		
-		DailyRentalPrice dailyRentalPrice=new DailyRentalPrice();
-		dailyRentalPrice.setCar(car);
-		dailyRentalPrice.setIsItCurrent(true);
+		dailyRentalPrice.setCarId(car.getId());
+		dailyRentalPrice.setCarNameString(car.getName());
+		dailyRentalPrice.setVehicleTypes(car.getVehicleType());
 		dailyRentalPrice.setPrice(dailyPrice);
-		
+		dailyRentalPrice.setIsItCurrent(true);
 		dailyRentalPriceRepository.save(dailyRentalPrice);
+
+		DailyRentalPriceResponse  priceResponse=new DailyRentalPriceResponse();
+		BeanUtils.copyProperties(dailyRentalPrice, priceResponse);
+		return priceResponse;
 	}
 	
-	public DailyRentalPrice getPriceListDailyRentalPrice(Integer carId) {
-		return dailyRentalPriceRepository.findByCarIdAndIsItCurrentTrue(carId);
-	}
+
 	
 
 }

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-
+import com.numan.Ornek3.Models.DailyRentalPriceResponse;
 import com.numan.Ornek3.Services.DailyRentalPriceService;
 
 @RestController
@@ -20,8 +20,8 @@ public class DailyRentalPriceController {
 	
 	
 	@PostMapping("/add-dailyrentalprice/{carId}")
-	public void AddDailyRentalPrice(@PathVariable Integer carId,@RequestParam BigDecimal dailyPrice) {
-		dailyRentalPriceService.AddDailyRentalPrice(carId, dailyPrice);
+	public DailyRentalPriceResponse AddDailyRentalPrice(@PathVariable Integer carId,@RequestParam BigDecimal dailyPrice) {
+		return dailyRentalPriceService.AddDailyRentalPrice(carId, dailyPrice);
 		
 	}
 
