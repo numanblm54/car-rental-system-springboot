@@ -3,12 +3,15 @@ package com.numan.Ornek3.Services;
 import java.math.BigDecimal;
 
 import org.springframework.beans.BeanUtils;
+
 import org.springframework.stereotype.Service;
 
 import com.numan.Ornek3.Models.Car;
+import com.numan.Ornek3.Models.CarResponse;
 import com.numan.Ornek3.Models.DailyRentalPrice;
 import com.numan.Ornek3.Models.DailyRentalPriceResponse;
 import com.numan.Ornek3.Models.MyException;
+
 import com.numan.Ornek3.Repositories.DailyRentalPriceRepository;
 
 @Service
@@ -52,15 +55,24 @@ public class DailyRentalPriceService {
 			dailyRentalPriceRepository.save(oldDailyRentalPrice);
 		}
 		
-		dailyRentalPrice.setCarId(car.getId());
-		dailyRentalPrice.setCarNameString(car.getName());
-		dailyRentalPrice.setVehicleTypes(car.getVehicleType());
+//		dailyRentalPrice.setCarId(car.getId());
+//		dailyRentalPrice.setCarNameString(car.getName());
+//		dailyRentalPrice.setVehicleTypes(car.getVehicleType());
+		dailyRentalPrice.setCar(car);
 		dailyRentalPrice.setPrice(dailyPrice);
 		dailyRentalPrice.setIsItCurrent(true);
 		dailyRentalPriceRepository.save(dailyRentalPrice);
-
+		
+		CarResponse carResponse= new CarResponse();
 		DailyRentalPriceResponse  priceResponse=new DailyRentalPriceResponse();
+		Car activeCar=dailyRentalPrice.getCar();
 		BeanUtils.copyProperties(dailyRentalPrice, priceResponse);
+		BeanUtils.copyProperties(activeCar, carResponse);
+		//priceResponse.setCarId(car.getId());
+		//priceResponse.setCarNameString(car.getName());
+		//priceResponse.setPrice(dailyRentalPrice.getPrice());
+		//priceResponse.setVehicleTypes(car.getVehicleType());
+		priceResponse.setCar(carResponse);
 		return priceResponse;
 	}
 	

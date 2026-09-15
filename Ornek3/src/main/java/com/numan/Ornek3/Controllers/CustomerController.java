@@ -40,6 +40,16 @@ public class CustomerController {
 		return customerService.getCustomerResponseById(id);
 	}
 	
+	@GetMapping("/customer-with-rentals/{id}")
+	public CustomerResponse getCustomerWithRentals(@PathVariable int id){
+		return customerService.getCustomerWithRentals(id);
+	}
+	
+	@GetMapping("/customer-with-cars/{id}")
+	public CustomerResponse getCustomerWithCars(@PathVariable int id){
+		return customerService.getCustomerWithCars(id);
+	}
+	
 	@GetMapping("/customer-getby-name/{name}")
 	public List<CustomerResponse> getCustomerByName(@PathVariable String name){
 		return customerService.getCustomerByName(name);

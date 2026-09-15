@@ -5,18 +5,25 @@ import java.util.List;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import com.numan.Ornek3.Models.CarResponse;
 import com.numan.Ornek3.Models.Customer;
 import com.numan.Ornek3.Models.CustomerRequest;
 import com.numan.Ornek3.Models.CustomerResponse;
+import com.numan.Ornek3.Models.DailyRentalPriceResponse;
+import com.numan.Ornek3.Models.EndingRentalResponse;
 import com.numan.Ornek3.Models.MyException;
+import com.numan.Ornek3.Models.RentalRecord;
 import com.numan.Ornek3.Repositories.CustomerRepository;
+import com.numan.Ornek3.Repositories.RentalRecordRepository;
 
 @Service
 public class CustomerService {
     private final CustomerRepository customerRepository;
+    private final RentalRecordRepository rentalRecordRepository;
 
-    public CustomerService(CustomerRepository customerRepository) {
+    public CustomerService(CustomerRepository customerRepository,RentalRecordRepository rentalRecordRepository) {
         this.customerRepository = customerRepository;
+        this.rentalRecordRepository=rentalRecordRepository;
     }
 	
 	public List<CustomerResponse> getAllCustomers(){
@@ -161,6 +168,49 @@ public class CustomerService {
 		CustomerResponse response=new CustomerResponse();
 		BeanUtils.copyProperties(customer, response);
 		return response;
+	}
+	
+	public CustomerResponse getCustomerWithRentals(Integer customerId) {
+		Customer customer=getCustomerById(customerId);
+		CustomerResponse response=new CustomerResponse();
+		BeanUtils.copyProperties(customer, response);
+		List<RentalRecord> records=rentalRecordRepository.findByCustomerId(customerId);
+		if (records==null || records.isEmpty()) {
+			throw new MyException("There is no rental for this customer.");
+		}
+		for(RentalRecord rentalRecord:records) {
+			EndingRentalResponse rentalResponse=new EndingRentalResponse();
+			BeanUtils.copyProperties(rentalRecord, rentalResponse);
+			CarResponse carResponse=new CarResponse();
+			DailyRentalPriceResponse priceResponse=new DailyRentalPriceResponse();
+			BeanUtils.copyProperties(rentalRecord.getCar(), carResponse);
+			BeanUtils.copyProperties(rentalRecord.getDailyRentalPrice(), priceResponse);
+			rentalResponse.setCar(carResponse);
+			rentalResponse.setDailyRentalPrice(priceResponse);
+			response.getRentalRecordsList().add(rentalResponse);
+		}
+		return response;
+	}
+	
+	public CustomerResponse getCustomerWithCars(Integer customerId) {
+		
+		Customer customer=getCustomerById(customerId);
+		CustomerResponse response=new CustomerResponse();
+		BeanUtils.copyProperties(customer, response);
+		List<RentalRecord> records=rentalRecordRepository.findByCustomerId(customerId);
+		if (records==null || records.isEmpty()) {
+			throw new MyException("There is no rental for this customer.");
+		}
+		
+		for(RentalRecord rentalRecord:records) {
+			CarResponse carResponse=new CarResponse();
+			BeanUtils.copyProperties(rentalRecord.getCar(), carResponse);
+			response.getCarsList().add(carResponse);
+		}
+		
+		return response;
+		
+		
 	}
 	
 }

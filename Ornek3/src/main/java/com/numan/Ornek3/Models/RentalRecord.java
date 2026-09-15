@@ -32,7 +32,7 @@ public class RentalRecord {
 	private Integer endingKm;
 	private LocalDateTime startingRentalDate;
 	private LocalDateTime endingRentalDate;
-	private BigDecimal priceList;
+//	private BigDecimal priceList;
 	
     @ManyToOne
     private Car car;
@@ -40,6 +40,9 @@ public class RentalRecord {
     
     @ManyToOne
     private Customer customer;
+    
+    @ManyToOne
+    private DailyRentalPrice dailyRentalPrice;
     
     private BigDecimal totalRentalPrice;
 	

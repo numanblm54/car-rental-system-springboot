@@ -2,6 +2,7 @@ package com.numan.Ornek3.Models;
 
 import java.math.BigDecimal;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,9 +14,12 @@ import lombok.Setter;
 @Setter
 public class DailyRentalPriceResponse {
 	
-	private Integer carId;
-	private String carNameString;
-	private VehicleTypes vehicleTypes;
+//	private Integer carId;
+//	private String carNameString;
+//	private VehicleTypes vehicleTypes;
+//	private Car car;
+	
+	private CarResponse car;
 	private BigDecimal price;
 
 }

@@ -6,14 +6,19 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import com.numan.Ornek3.Models.Car;
+import com.numan.Ornek3.Models.CarResponse;
 import com.numan.Ornek3.Models.Customer;
+import com.numan.Ornek3.Models.CustomerResponse;
 import com.numan.Ornek3.Models.DailyRentalPrice;
+import com.numan.Ornek3.Models.DailyRentalPriceResponse;
 import com.numan.Ornek3.Models.DriversLicenseTypes;
 import com.numan.Ornek3.Models.EndingRentalResponse;
 import com.numan.Ornek3.Models.MyException;
 import com.numan.Ornek3.Models.RentalRecord;
+import com.numan.Ornek3.Models.RentalResponse;
 import com.numan.Ornek3.Models.StartingRentalResponse;
 import com.numan.Ornek3.Models.VehicleTypes;
 import com.numan.Ornek3.Repositories.RentalRecordRepository;
@@ -40,33 +45,46 @@ public class RentalService {
 		return rentalRecordRepository.findById(id)
 				.orElseThrow(() -> new MyException("The record wasn't found.")); 
 	}
+	
+	public List<RentalRecord> GetRentalRecordByCustomerId(Integer id) {
+	    List<RentalRecord> records =
+	            rentalRecordRepository.findByCustomerId(id);
+
+	    if (records.isEmpty()) {
+	        throw new MyException("The records weren't found.");
+	    }
+
+	    return records;
+	}
+	
 	public EndingRentalResponse GetRentalRecordResponseById(Integer id) {
 		RentalRecord rentalRecord=GetRentalRecordById(id);
-		EndingRentalResponse response=new EndingRentalResponse(rentalRecord);
-		return response;
-
+		EndingRentalResponse response=new EndingRentalResponse();
+		BeanUtils.copyProperties(rentalRecord, response);
+		return GenerateAndCopy(rentalRecord, response);
 	}
 	
 	public List<EndingRentalResponse> GetAllRecords(){
 		List<EndingRentalResponse> responseList=new ArrayList<>();
 		List<RentalRecord> recordList=rentalRecordRepository.findAll();
 		for (RentalRecord rentalRecord:recordList) {
-			EndingRentalResponse response=new EndingRentalResponse(rentalRecord);
+			EndingRentalResponse response=new EndingRentalResponse();
+			BeanUtils.copyProperties(rentalRecord, response);
+			GenerateAndCopy(rentalRecord, response);
 			responseList.add(response);
 		}
-		return responseList;
-				
+		return responseList;		
 	}
 	
-	public StartingRentalResponse StartRental(Car car, Customer customer) {
+	public StartingRentalResponse StartRental(Integer carId, Integer customerId) {
 		
 //		Optional<Car> carOptional = carRepository.findById(car.getId());
 //		if (carOptional.isEmpty()) {
 //		    throw new MyException("The car wasn't found.");
 		
-		carService.getCarById(car.getId());
-		customerService.getCustomerById(customer.getId());
-		DailyRentalPrice priceList=dailyRentalPriceService.getCurrentPrice(car.getId());
+		Car car=carService.getCarById(carId);
+		Customer customer=customerService.getCustomerById(customerId);
+		DailyRentalPrice priceList=dailyRentalPriceService.getCurrentPrice(carId);
 			
 		if (customer.getDriversLicenseType() == DriversLicenseTypes.A) {
 
@@ -85,28 +103,26 @@ public class RentalService {
 		else if (customer.getDriversLicenseType() == DriversLicenseTypes.C) {
 
 			if (car.getVehicleType() == VehicleTypes.Motorcycle ) {
-		        	throw new MyException("Aperson who has a type C driver's license cannot drive a motorcycle.");
-		            
+		        	throw new MyException("Aperson who has a type C driver's license cannot drive a motorcycle.");    
 			}
 		}
-		
-		//DailyRentalPrice priceList = dailyRentalPriceService.getCurrentPrice(car.getId());
 		
         RentalRecord rentalRecord = new RentalRecord();
         rentalRecord.setCar(car);
         rentalRecord.setCustomer(customer);
+        rentalRecord.setDailyRentalPrice(priceList);
         rentalRecord.setStartingKm(car.getKm());
         rentalRecord.setStartingRentalDate(LocalDateTime.now());
-        rentalRecord.setPriceList(priceList.getPrice());
         car.setIsItActive(false);
         rentalRecordRepository.save(rentalRecord);
-        StartingRentalResponse response=new StartingRentalResponse(rentalRecord);
-        return response; 
+        
+        StartingRentalResponse response=new StartingRentalResponse();
+        BeanUtils.copyProperties(rentalRecord,response);       
+        return GenerateAndCopy(rentalRecord, response); 
 	}
 	
 	public EndingRentalResponse EndRental(Integer id, Integer finishKm) {
-		
-
+	
 		RentalRecord rrecord=GetRentalRecordById(id);
 		
 		if(finishKm<rrecord.getStartingKm()) {
@@ -122,11 +138,25 @@ public class RentalService {
 		        rrecord.getStartingRentalDate(),
 		        rrecord.getEndingRentalDate()
 		        )+1;
-		rrecord.setTotalRentalPrice(rrecord.getPriceList().multiply(BigDecimal.valueOf(days)));
+		rrecord.setTotalRentalPrice(rrecord.getDailyRentalPrice().getPrice().multiply(BigDecimal.valueOf(days)));
 		rentalRecordRepository.save(rrecord);
 		
-        EndingRentalResponse response=new EndingRentalResponse(rrecord);
-        return response; 
+        EndingRentalResponse response=new EndingRentalResponse();
+        BeanUtils.copyProperties(rrecord,response);
+        return GenerateAndCopy(rrecord, response);
 	}
 	
+	public <T extends RentalResponse> T GenerateAndCopy(RentalRecord rentalRecord,T response) {
+		CarResponse carResponse=new CarResponse();
+		CustomerResponse customerResponse=new CustomerResponse();
+		DailyRentalPriceResponse priceResponse=new DailyRentalPriceResponse();
+		BeanUtils.copyProperties(rentalRecord.getCar(), carResponse);
+		BeanUtils.copyProperties(rentalRecord.getCustomer(), customerResponse);
+		BeanUtils.copyProperties(rentalRecord.getDailyRentalPrice(), priceResponse);
+		response.setCar(carResponse);
+		response.setCustomer(customerResponse);
+		response.setDailyRentalPrice(priceResponse);
+		
+		return response;
+	}
 }
