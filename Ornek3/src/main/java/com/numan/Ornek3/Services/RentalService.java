@@ -76,7 +76,7 @@ public class RentalService {
 		return responseList;		
 	}
 	
-	public StartingRentalResponse StartRental(Integer carId, Integer customerId) {
+	public StartingRentalResponse startRental(Integer carId, Integer customerId) {
 		
 //		Optional<Car> carOptional = carRepository.findById(car.getId());
 //		if (carOptional.isEmpty()) {
@@ -96,14 +96,14 @@ public class RentalService {
 		else if (customer.getDriversLicenseType() == DriversLicenseTypes.B) {
 
 			if (car.getVehicleType() == VehicleTypes.Motorcycle || car.getVehicleType() == VehicleTypes.Truck) {
-		        	throw new MyException("Aperson who has a type B driver's license cannot drive a motorcycle or a truck.");
+		        	throw new MyException("A person who has a type B driver's license cannot drive a motorcycle or a truck.");
 			}
 		} 
 		
 		else if (customer.getDriversLicenseType() == DriversLicenseTypes.C) {
 
 			if (car.getVehicleType() == VehicleTypes.Motorcycle ) {
-		        	throw new MyException("Aperson who has a type C driver's license cannot drive a motorcycle.");    
+		        	throw new MyException("A person who has a type C driver's license cannot drive a motorcycle.");    
 			}
 		}
 		

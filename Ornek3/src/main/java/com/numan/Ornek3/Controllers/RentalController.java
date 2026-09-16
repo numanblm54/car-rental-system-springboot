@@ -48,7 +48,7 @@ public class RentalController {
 	public StartingRentalResponse RentalStart(@RequestBody RentalRequest rentalRequest) {
 //		Car car=carService.getCarById(rentalRequest.getCarId());
 //		Customer customer=customerService.getCustomerById(rentalRequest.getCustomerId());
-		return rentalService.StartRental(rentalRequest.getCarId(),rentalRequest.getCustomerId());
+		return rentalService.startRental(rentalRequest.getCarId(),rentalRequest.getCustomerId());
 	}
 	
 	@PutMapping("/end-rental/{id}")

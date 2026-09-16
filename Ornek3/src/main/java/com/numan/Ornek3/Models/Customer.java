@@ -10,6 +10,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
@@ -41,7 +42,7 @@ public class Customer {
 	@OneToMany
 	private List<RentalRecord> rentalRecord;
 	
-	@ManyToOne
+	@ManyToMany
 	private List<Car> car;
 	
 }
