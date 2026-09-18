@@ -2,6 +2,7 @@ package com.numan.Ornek3;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.intThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import com.numan.Ornek3.Models.CarResponse;
 import com.numan.Ornek3.Models.CustomerRequest;
 import com.numan.Ornek3.Models.CustomerResponse;
 import com.numan.Ornek3.Models.DriversLicenseTypes;
+import com.numan.Ornek3.Models.EndingRentalResponse;
 import com.numan.Ornek3.Models.MyException;
 import com.numan.Ornek3.Models.VehicleTypes;
 import com.numan.Ornek3.Services.CarService;
@@ -110,4 +112,45 @@ class Ornek3ApplicationTests {
 		}
 	}
 	
+	@Test
+	public void testGetAllCustomers() {
+		List<CustomerResponse> customerList=customerService.getAllCustomers();
+		for(CustomerResponse response:customerList) {
+			System.out.print(response.getName()+" ");
+			System.out.print(response.getSurName()+" ");
+			System.out.print(response.getAge()+" ");
+			System.out.println();
+		}
+		
+	}
+	
+	@Test
+	public void testGetCustomerWithRentals() {
+		
+		CustomerResponse customer=customerService.getCustomerWithRentals(1);
+		System.out.print(customer.getName()+" ");
+		System.out.print(customer.getSurName()+" ");
+		System.out.print(customer.getAge()+" ");
+		System.out.println();
+		for(int i=0; i<customer.getRentalRecordsList().size();i++) {
+			EndingRentalResponse rental =(EndingRentalResponse) customer.getRentalRecordsList().get(i);
+			System.out.println(rental.getCar().getName());
+		}
+	}
+	
+	@Test
+	public void testGetCustomerWithCars() {
+		CustomerResponse customer=customerService.getCustomerWithCars(1);
+		System.out.print(customer.getName()+" ");
+		System.out.print(customer.getSurName()+" ");
+		System.out.print(customer.getAge()+" ");
+		System.out.println();
+		for(int i=0;i<customer.getCarsList().size();i++){
+			CarResponse car=customer.getCarsList().get(i);
+			System.out.println("Car name: "+ car.getName());
+			System.out.println("Car model: "+ car.getModel());
+		}
+	}
 }
+	
+
