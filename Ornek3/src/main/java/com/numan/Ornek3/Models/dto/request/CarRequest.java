@@ -1,10 +1,10 @@
-package com.numan.Ornek3.Models;
+package com.numan.Ornek3.Models.dto.request;
 
+import com.numan.Ornek3.Models.VehicleTypes;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,5 +28,4 @@ public class CarRequest {
 	@NotNull(message = "The vehicle type cannot be null.")
 	@Enumerated(EnumType.STRING)
 	private VehicleTypes vehicleType;
-
 }

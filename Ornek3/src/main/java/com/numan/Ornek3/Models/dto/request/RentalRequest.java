@@ -1,4 +1,4 @@
-package com.numan.Ornek3.Models;
+package com.numan.Ornek3.Models.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -17,5 +17,4 @@ public class RentalRequest {
 	
 	@NotNull(message = "The car id cannot be empty.")
 	private Integer carId;
-	
 }

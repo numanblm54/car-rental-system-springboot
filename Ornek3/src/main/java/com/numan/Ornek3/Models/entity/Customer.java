@@ -1,24 +1,23 @@
-package com.numan.Ornek3.Models;
+package com.numan.Ornek3.Models.entity;
 
-import java.security.PrivateKey;
-import java.util.ArrayList;
-import java.util.List;
 
+
+import com.numan.Ornek3.Models.DriversLicenseTypes;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -39,10 +38,6 @@ public class Customer {
 	@Enumerated(EnumType.STRING)
 	private DriversLicenseTypes driversLicenseType;
 	
-	@OneToMany
-	private List<RentalRecord> rentalRecord;
-	
-	@ManyToMany
-	private List<Car> car;
+
 	
 }

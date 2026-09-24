@@ -1,4 +1,6 @@
-package com.numan.Ornek3.Models;
+package com.numan.Ornek3.Models.dto.request;
+
+import com.numan.Ornek3.Models.DriversLicenseTypes;
 
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -16,8 +18,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CustomerRequest {
+	
 	@NotBlank(message = "The customer's name cannot be empty.")
 	private String name;
+	
 	@NotBlank(message = "The customer's surname cannot be empty.")
 	private String surName;
 	
@@ -32,5 +36,4 @@ public class CustomerRequest {
 	@NotNull(message = "The driver's license type cannot be null.")
 	@Enumerated(EnumType.STRING)
 	private DriversLicenseTypes driversLicenseType;
-	
 }

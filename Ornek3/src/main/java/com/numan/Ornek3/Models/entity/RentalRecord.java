@@ -1,4 +1,4 @@
-package com.numan.Ornek3.Models;
+package com.numan.Ornek3.Models.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -9,10 +9,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -22,22 +26,14 @@ public class RentalRecord {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-	
-//	private Integer customerIdInteger;
-//	private String customerNameString;
-//	private String customerSurnameString;
-//	private Integer carIdInteger;
-//	private String carNameString;
 	private Integer startingKm;
 	private Integer endingKm;
 	private LocalDateTime startingRentalDate;
 	private LocalDateTime endingRentalDate;
-//	private BigDecimal priceList;
 	
     @ManyToOne
     private Car car;
 
-    
     @ManyToOne
     private Customer customer;
     

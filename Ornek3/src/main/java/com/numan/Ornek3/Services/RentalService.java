@@ -3,89 +3,85 @@ package com.numan.Ornek3.Services;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
-
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import com.numan.Ornek3.Models.Car;
-import com.numan.Ornek3.Models.CarResponse;
-import com.numan.Ornek3.Models.Customer;
-import com.numan.Ornek3.Models.CustomerResponse;
-import com.numan.Ornek3.Models.DailyRentalPrice;
-import com.numan.Ornek3.Models.DailyRentalPriceResponse;
-import com.numan.Ornek3.Models.DriversLicenseTypes;
-import com.numan.Ornek3.Models.EndingRentalResponse;
-import com.numan.Ornek3.Models.MyException;
-import com.numan.Ornek3.Models.RentalRecord;
-import com.numan.Ornek3.Models.RentalResponse;
-import com.numan.Ornek3.Models.StartingRentalResponse;
-import com.numan.Ornek3.Models.VehicleTypes;
+import com.numan.Ornek3.Models.dto.domain.RentalRecordDTO;
+import com.numan.Ornek3.Models.entity.Car;
+import com.numan.Ornek3.Models.entity.Customer;
+import com.numan.Ornek3.Models.entity.DailyRentalPrice;
+import com.numan.Ornek3.Models.entity.RentalRecord;
 import com.numan.Ornek3.Repositories.RentalRecordRepository;
+import com.numan.Ornek3.mapper.RentalRecordMapper;
+import com.numan.Ornek3.Models.DriversLicenseTypes;
+import com.numan.Ornek3.Models.MyException;
+import com.numan.Ornek3.Models.VehicleTypes;
 
 @Service
 public class RentalService {
 	
-	private RentalRecordRepository rentalRecordRepository;
-	private CarService carService;
-	private CustomerService customerService;
-	private DailyRentalPriceService dailyRentalPriceService;
+	private final RentalRecordRepository rentalRecordRepository;
+	private final CarService carService;
+	private final CustomerService customerService;
+	private final DailyRentalPriceService dailyRentalPriceService;
+	private final RentalRecordMapper rentalRecordMapper;
 	
 	public RentalService(RentalRecordRepository rentalRecordRepository,
 			CarService carService,
 			CustomerService customerService,
-			DailyRentalPriceService dailyRentalPriceService) {
-		this.rentalRecordRepository=rentalRecordRepository;
-		this.carService=carService;
-		this.customerService=customerService;
-		this.dailyRentalPriceService=dailyRentalPriceService;
+			DailyRentalPriceService dailyRentalPriceService,
+			RentalRecordMapper rentalRecordMapper) {
+		this.rentalRecordRepository = rentalRecordRepository;
+		this.carService = carService;
+		this.customerService = customerService;
+		this.dailyRentalPriceService = dailyRentalPriceService;
+		this.rentalRecordMapper = rentalRecordMapper;
 	}
 	
-	public RentalRecord GetRentalRecordById(Integer id) {
+	
+	public RentalRecord getRentalRecordById(Integer id) {
 		return rentalRecordRepository.findById(id)
 				.orElseThrow(() -> new MyException("The record wasn't found.")); 
 	}
 	
-	public List<RentalRecord> GetRentalRecordByCustomerId(Integer id) {
-	    List<RentalRecord> records =
-	            rentalRecordRepository.findByCustomerId(id);
-
-	    if (records.isEmpty()) {
+	
+	public RentalRecordDTO getRentalRecordDTOById(Integer id) {
+		var rentalRecord = getRentalRecordById(id);
+		var recordDTO = rentalRecordMapper.mapToRentalRecordDTO(rentalRecord);
+		return recordDTO;
+	}
+	
+	
+	public List<RentalRecordDTO> getAllRecords(){
+		List<RentalRecord> recordList=rentalRecordRepository.findAll();
+		var recordDTOList = rentalRecordMapper.mapRentalRecordListToRentalRecordDTOList(recordList);
+		return recordDTOList;		
+	}
+	
+	
+	public List<RentalRecordDTO> getRentalRecordByCustomerId(Integer id) {
+	    List<RentalRecord> recordList = rentalRecordRepository.findByCustomerId(id);
+	    if (recordList.isEmpty()) {
 	        throw new MyException("The records weren't found.");
 	    }
-
-	    return records;
+	    
+	    var recordDTOList = rentalRecordMapper.mapRentalRecordListToRentalRecordDTOList(recordList);
+	    return recordDTOList;
 	}
 	
-	public EndingRentalResponse GetRentalRecordResponseById(Integer id) {
-		RentalRecord rentalRecord=GetRentalRecordById(id);
-		EndingRentalResponse response=new EndingRentalResponse();
-		BeanUtils.copyProperties(rentalRecord, response);
-		return GenerateAndCopy(rentalRecord, response);
-	}
 	
-	public List<EndingRentalResponse> GetAllRecords(){
-		List<EndingRentalResponse> responseList=new ArrayList<>();
-		List<RentalRecord> recordList=rentalRecordRepository.findAll();
-		for (RentalRecord rentalRecord:recordList) {
-			EndingRentalResponse response=new EndingRentalResponse();
-			BeanUtils.copyProperties(rentalRecord, response);
-			GenerateAndCopy(rentalRecord, response);
-			responseList.add(response);
-		}
-		return responseList;		
-	}
-	
-	public StartingRentalResponse startRental(Integer carId, Integer customerId) {
-		
-//		Optional<Car> carOptional = carRepository.findById(car.getId());
-//		if (carOptional.isEmpty()) {
-//		    throw new MyException("The car wasn't found.");
-		
+	public RentalRecordDTO startRental(Integer carId, Integer customerId) {
 		Car car=carService.getCarById(carId);
 		Customer customer=customerService.getCustomerById(customerId);
-		DailyRentalPrice priceList=dailyRentalPriceService.getCurrentPrice(carId);
-			
+		DailyRentalPrice price=dailyRentalPriceService.getCurrentPrice(carId);
+		
+		if(car.getIsItActive()==false) {
+			throw new MyException("The car isn't active for rental.");
+		}
+		
+		if(price==null) {
+			throw new MyException("There is no current price for this vehicle");
+		}
+	
 		if (customer.getDriversLicenseType() == DriversLicenseTypes.A) {
 
 			if (car.getVehicleType() == VehicleTypes.Car || car.getVehicleType() == VehicleTypes.Truck) {
@@ -110,53 +106,36 @@ public class RentalService {
         RentalRecord rentalRecord = new RentalRecord();
         rentalRecord.setCar(car);
         rentalRecord.setCustomer(customer);
-        rentalRecord.setDailyRentalPrice(priceList);
+        rentalRecord.setDailyRentalPrice(price);
         rentalRecord.setStartingKm(car.getKm());
         rentalRecord.setStartingRentalDate(LocalDateTime.now());
         car.setIsItActive(false);
         rentalRecordRepository.save(rentalRecord);
         
-        StartingRentalResponse response=new StartingRentalResponse();
-        BeanUtils.copyProperties(rentalRecord,response);       
-        return GenerateAndCopy(rentalRecord, response); 
+        var recordDTO = rentalRecordMapper.mapToRentalRecordDTO(rentalRecord);
+        return recordDTO;
 	}
 	
-	public EndingRentalResponse EndRental(Integer id, Integer finishKm) {
 	
-		RentalRecord rrecord=GetRentalRecordById(id);
-		
-		if(finishKm<rrecord.getStartingKm()) {
-			throw new MyException("The ending kilometer cannot be less than starting kilometer");
+	public RentalRecordDTO endRental(Integer id, Integer finishKm) {
+		RentalRecord rentalRecord=getRentalRecordById(id);
+		if(finishKm<rentalRecord.getStartingKm()) {
+			throw new MyException("The ending kilometer cannot be less than starting kilometer.");
 		}
 		
-		rrecord.setEndingKm(finishKm);
-	    Car car = rrecord.getCar();
+		rentalRecord.setEndingKm(finishKm);
+	    Car car = rentalRecord.getCar();
 	    car.setKm(finishKm);
 	    car.setIsItActive(true);
-		rrecord.setEndingRentalDate(LocalDateTime.now());
+	    rentalRecord.setEndingRentalDate(LocalDateTime.now());
 		Long days= ChronoUnit.DAYS.between(
-		        rrecord.getStartingRentalDate(),
-		        rrecord.getEndingRentalDate()
+				rentalRecord.getStartingRentalDate(),
+				rentalRecord.getEndingRentalDate()
 		        )+1;
-		rrecord.setTotalRentalPrice(rrecord.getDailyRentalPrice().getPrice().multiply(BigDecimal.valueOf(days)));
-		rentalRecordRepository.save(rrecord);
+		rentalRecord.setTotalRentalPrice(rentalRecord.getDailyRentalPrice().getPrice().multiply(BigDecimal.valueOf(days)));
+		rentalRecordRepository.save(rentalRecord);
 		
-        EndingRentalResponse response=new EndingRentalResponse();
-        BeanUtils.copyProperties(rrecord,response);
-        return GenerateAndCopy(rrecord, response);
-	}
-	
-	public <T extends RentalResponse> T GenerateAndCopy(RentalRecord rentalRecord,T response) {
-		CarResponse carResponse=new CarResponse();
-		CustomerResponse customerResponse=new CustomerResponse();
-		DailyRentalPriceResponse priceResponse=new DailyRentalPriceResponse();
-		BeanUtils.copyProperties(rentalRecord.getCar(), carResponse);
-		BeanUtils.copyProperties(rentalRecord.getCustomer(), customerResponse);
-		BeanUtils.copyProperties(rentalRecord.getDailyRentalPrice(), priceResponse);
-		response.setCar(carResponse);
-		response.setCustomer(customerResponse);
-		response.setDailyRentalPrice(priceResponse);
-		
-		return response;
+		var recordDTO = rentalRecordMapper.mapToRentalRecordDTO(rentalRecord);
+		return recordDTO;
 	}
 }

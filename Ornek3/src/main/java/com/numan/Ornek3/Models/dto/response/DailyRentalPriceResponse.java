@@ -1,22 +1,21 @@
-package com.numan.Ornek3.Models;
+package com.numan.Ornek3.Models.dto.response;
 
 import java.math.BigDecimal;
-
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class DailyRentalPriceRequest {
+public class DailyRentalPriceResponse {
 	
-	private Integer carId;
-
+	private CarResponse car;
 	private BigDecimal price;
-	
-//	private Boolean isItCurrent;
-
 }

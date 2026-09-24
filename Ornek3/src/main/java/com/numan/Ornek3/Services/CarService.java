@@ -1,84 +1,70 @@
 package com.numan.Ornek3.Services;
 
-import java.util.ArrayList;
 import java.util.List;
-
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-
 import com.numan.Ornek3.Repositories.CarRepository;
-import com.numan.Ornek3.Models.Car;
-import com.numan.Ornek3.Models.CarRequest;
-import com.numan.Ornek3.Models.CarResponse;
+import com.numan.Ornek3.mapper.CarMapper;
 import com.numan.Ornek3.Models.MyException;
-
+import com.numan.Ornek3.Models.dto.domain.CarDTO;
+import com.numan.Ornek3.Models.entity.Car;
 
 @Service
 public class CarService {
-	public CarRepository carRepository;
 	
-	public CarService(CarRepository carRepository) {
-		this.carRepository=carRepository;
+	private final CarRepository carRepository;
+	private final CarMapper carMapper;
+	
+	public CarService(CarRepository carRepository,CarMapper carMapper) {
+		this.carRepository = carRepository;
+		this.carMapper = carMapper;
 	}
 	
-	public CarResponse addCar(CarRequest carRequest) {
-		if(carRequest.getModel()<1990) {
+	
+	public CarDTO addCar(CarDTO carDTO) {
+		if(carDTO.getModel()<1990) {
 			throw new MyException("The car model year can't be smaller than 1990");
 		}
-		Car car =new Car();
-		BeanUtils.copyProperties(carRequest, car);
+		
+		var car = carMapper.mapCarDTOToCar(carDTO);
 		car.setIsItActive(true);
 		carRepository.save(car);
 		
-		CarResponse response=new CarResponse();
-		BeanUtils.copyProperties(car,response);
-		return response;
+		var savedCarDTO = carMapper.mapCarToCarDto(car);
+		return savedCarDTO;
 	}
 	
-	public List<CarResponse> getAllCars() {
+	
+	public List<CarDTO> getAllCars() {
 		List<Car> carList=carRepository.findAll();
-		List<CarResponse> carResponseList=new ArrayList<>();
-		for ( Car car :carList) {
-			CarResponse carResponse= new CarResponse();
-			BeanUtils.copyProperties(car, carResponse);
-			carResponseList.add(carResponse);
-		}
-		return carResponseList;
+		var carDTOList = carMapper.mapToCarDTOList(carList);
+		return carDTOList;
 	}
+	
 	
 	 public Car getCarById(Integer id) {
-		 return carRepository.findById(id)
-				 .orElseThrow(() -> new MyException("The car wasn't found."));
+		    return carRepository.findById(id)
+		            .orElseThrow(() -> new MyException("The car wasn't found."));
 	 }
 	 
-	 public CarResponse getCarResponseById(Integer id) {
-		return doCopy(getCarById(id));
+	 
+	 public CarDTO getCarDTOById(Integer id) {
+		var carDTO = carMapper.mapCarToCarDto(getCarById(id));
+		return carDTO;
 	 }
+	 
 	 
 	 public void deleteCar(Integer id) {
 		 Car car = getCarById(id);
 		 carRepository.delete(car);
 	 }
 	 
-	 public CarResponse updateCarById(Integer id, CarRequest carRequest) {
-		 Car oldCar= getCarById(id);
-		 
-		 BeanUtils.copyProperties(carRequest, oldCar);
-//		 oldCar.setName(car.getName());
-//		 oldCar.setModel(car.getModel());
-//		 oldCar.setKm(car.getKm());
-//		 oldCar.setVehicleType(car.getVehicleType());
-
-		 return doCopy(oldCar);
-		 
-	 }
 	 
-	 public CarResponse doCopy(Car car) {
-		 CarResponse response=new CarResponse();
-		 BeanUtils.copyProperties(car, response);
-		 return response;
-	
+	 public CarDTO updateCarById(Integer id, CarDTO carDTO) {
+		 Car oldCar= getCarById(id);
+		 BeanUtils.copyProperties(carDTO, oldCar,"id");
+		 carRepository.save(oldCar);
+		 var savedCarDTO = carMapper.mapCarToCarDto(oldCar);
+		 return savedCarDTO;
 	 }
-
 }
