@@ -2,7 +2,8 @@ package com.numan.Ornek3.Models.entity;
 
 
 
-import com.numan.Ornek3.Models.DriversLicenseTypes;
+import com.numan.Ornek3.enums.DriversLicenseTypes;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

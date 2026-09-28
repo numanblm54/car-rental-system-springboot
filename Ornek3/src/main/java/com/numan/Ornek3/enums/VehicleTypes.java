@@ -1,4 +1,4 @@
-package com.numan.Ornek3.Models;
+package com.numan.Ornek3.enums;
 
 public enum VehicleTypes {
 	

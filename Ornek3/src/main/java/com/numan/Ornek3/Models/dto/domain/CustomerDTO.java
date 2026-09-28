@@ -2,7 +2,7 @@ package com.numan.Ornek3.Models.dto.domain;
 
 import java.util.List;
 
-import com.numan.Ornek3.Models.DriversLicenseTypes;
+import com.numan.Ornek3.enums.DriversLicenseTypes;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

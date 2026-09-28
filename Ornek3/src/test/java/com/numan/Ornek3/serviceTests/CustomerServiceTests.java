@@ -13,9 +13,9 @@ import com.numan.Ornek3.Models.dto.domain.CustomerDTO;
 import com.numan.Ornek3.Models.entity.Customer;
 import com.numan.Ornek3.Repositories.CustomerRepository;
 import com.numan.Ornek3.Services.CustomerService;
+import com.numan.Ornek3.enums.DriversLicenseTypes;
+import com.numan.Ornek3.exception.MyException;
 import com.numan.Ornek3.mapper.CustomerMapper;
-import com.numan.Ornek3.Models.DriversLicenseTypes;
-import com.numan.Ornek3.Models.MyException;
 import com.numan.Ornek3.testUtils.TestDataFactory;   
 
 @ExtendWith(MockitoExtension.class)

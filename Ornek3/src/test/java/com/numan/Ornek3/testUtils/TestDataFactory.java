@@ -2,8 +2,7 @@ package com.numan.Ornek3.testUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import com.numan.Ornek3.Models.DriversLicenseTypes;
-import com.numan.Ornek3.Models.VehicleTypes;
+
 import com.numan.Ornek3.Models.dto.domain.CarDTO;
 import com.numan.Ornek3.Models.dto.domain.CustomerDTO;
 import com.numan.Ornek3.Models.dto.domain.DailyRentalPriceDTO;
@@ -12,6 +11,8 @@ import com.numan.Ornek3.Models.entity.Car;
 import com.numan.Ornek3.Models.entity.Customer;
 import com.numan.Ornek3.Models.entity.DailyRentalPrice;
 import com.numan.Ornek3.Models.entity.RentalRecord;
+import com.numan.Ornek3.enums.DriversLicenseTypes;
+import com.numan.Ornek3.enums.VehicleTypes;
 
 public class TestDataFactory {
 	

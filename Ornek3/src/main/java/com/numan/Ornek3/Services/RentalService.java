@@ -11,10 +11,12 @@ import com.numan.Ornek3.Models.entity.Customer;
 import com.numan.Ornek3.Models.entity.DailyRentalPrice;
 import com.numan.Ornek3.Models.entity.RentalRecord;
 import com.numan.Ornek3.Repositories.RentalRecordRepository;
+import com.numan.Ornek3.enums.DriversLicenseTypes;
+import com.numan.Ornek3.enums.VehicleTypes;
+import com.numan.Ornek3.exception.AppException;
+import com.numan.Ornek3.exception.ErrorCode;
+import com.numan.Ornek3.exception.MyException;
 import com.numan.Ornek3.mapper.RentalRecordMapper;
-import com.numan.Ornek3.Models.DriversLicenseTypes;
-import com.numan.Ornek3.Models.MyException;
-import com.numan.Ornek3.Models.VehicleTypes;
 
 @Service
 public class RentalService {
@@ -53,6 +55,9 @@ public class RentalService {
 	
 	public List<RentalRecordDTO> getAllRecords(){
 		List<RentalRecord> recordList=rentalRecordRepository.findAll();
+		if(recordList.isEmpty()) {
+			throw new MyException("There is no any record.");
+		}
 		var recordDTOList = rentalRecordMapper.mapRentalRecordListToRentalRecordDTOList(recordList);
 		return recordDTOList;		
 	}
@@ -75,11 +80,11 @@ public class RentalService {
 		DailyRentalPrice price=dailyRentalPriceService.getCurrentPrice(carId);
 		
 		if(car.getIsItActive()==false) {
-			throw new MyException("The car isn't active for rental.");
+			throw new AppException(ErrorCode.DUPLİCATE_RESOURCE);
 		}
 		
 		if(price==null) {
-			throw new MyException("There is no current price for this vehicle");
+			throw new AppException(ErrorCode.RESOURCE_NOT_FOUND);
 		}
 	
 		if (customer.getDriversLicenseType() == DriversLicenseTypes.A) {

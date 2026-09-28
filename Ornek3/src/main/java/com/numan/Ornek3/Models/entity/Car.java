@@ -1,6 +1,7 @@
 package com.numan.Ornek3.Models.entity;
 
-import com.numan.Ornek3.Models.VehicleTypes;
+import com.numan.Ornek3.enums.VehicleTypes;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

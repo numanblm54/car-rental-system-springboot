@@ -1,18 +1,30 @@
 package com.numan.Ornek3.Services;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import com.numan.Ornek3.Models.dto.domain.CustomerDTO;
 import com.numan.Ornek3.Models.entity.Car;
 import com.numan.Ornek3.Models.entity.Customer;
 import com.numan.Ornek3.Models.entity.RentalRecord;
 import com.numan.Ornek3.Repositories.CustomerRepository;
 import com.numan.Ornek3.Repositories.RentalRecordRepository;
+import com.numan.Ornek3.enums.DriversLicenseTypes;
+import com.numan.Ornek3.exception.AppException;
+import com.numan.Ornek3.exception.ErrorCode;
+import com.numan.Ornek3.exception.MyException;
 import com.numan.Ornek3.mapper.CarMapper;
 import com.numan.Ornek3.mapper.CustomerMapper;
 import com.numan.Ornek3.mapper.RentalRecordMapper;
-import com.numan.Ornek3.Models.MyException;
 
 @Service
 public class CustomerService {
@@ -45,7 +57,7 @@ public class CustomerService {
 	
 	public Customer getCustomerById(Integer id) { 
 		var customer = customerRepository .findById(id)
-					.orElseThrow(() -> new MyException("The customer wasn't found."));
+					.orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
 		return customer;
 	}
 	
@@ -146,5 +158,103 @@ public class CustomerService {
 		var carDTOList = carMapper.mapToCarDTOList(cars);
 		customerDTO.setCar(carDTOList);
 		return customerDTO;
+	}
+	
+	public void importCustomers(MultipartFile file) throws IOException {
+		 
+		List<String> errors = new ArrayList<>();
+
+	    BufferedReader reader =
+	            new BufferedReader(
+	                    new InputStreamReader(file.getInputStream()));
+
+	    String line;
+
+	    reader.readLine();
+
+	    List<Customer> customers = new ArrayList<>();
+
+	    int batchSize = 500;
+
+	    while ((line = reader.readLine()) != null) {
+
+	        String[] parts = line.split(",");
+
+	        CustomerDTO customerDTO = new CustomerDTO();
+
+	        customerDTO.setName(parts[0]);
+	        customerDTO.setSurName(parts[1]);
+	        customerDTO.setAge(Integer.parseInt(parts[2]));
+	        customerDTO.setNationalCardNo(parts[3]);
+	        customerDTO.setDriversLicenseType(
+	                DriversLicenseTypes.valueOf(parts[4])
+	        );
+
+	        try {
+
+	            if (getCustomerByNationalCardNo(
+	                    customerDTO.getNationalCardNo()) != null) {
+
+	                throw new MyException(
+	                        "There is a customer who uses this national card no."
+	                );
+	            }
+
+	            Customer customer = customerMapper.mapToCustomer(customerDTO);
+
+	            customers.add(customer);
+
+	            if (customers.size() == batchSize) {
+
+	                customerRepository.saveAll(customers);
+
+	                customers.clear();
+	            }
+
+	        } catch (MyException e) {
+
+	            errors.add(
+	                    customerDTO.getNationalCardNo()
+	                    + ": "
+	                    + e.getMessage()
+	            );
+	        }
+	    }
+
+	    if (!customers.isEmpty()) {
+	        customerRepository.saveAll(customers);
+	    }
+
+	    if (!errors.isEmpty()) {
+	        throw new MyException(errors);
+	    }
+	}
+	
+	public void exportCustomers() throws IOException {
+
+	    List<Customer> customers = customerRepository.findAll();
+
+	    Path path = Paths.get("customers.csv");
+	    
+	    System.out.println("Dosya yolu: " + path.toAbsolutePath());
+
+	    try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+
+	        writer.write("id,name,surName,age,nationalCardNo");
+	        writer.newLine();
+
+	        for (Customer customer : customers) {
+
+	            writer.write(
+	                    customer.getId() + "," +
+	                    customer.getName() + "," +
+	                    customer.getSurName() + "," +
+	                    customer.getAge() + "," +
+	                    customer.getNationalCardNo()
+	            );
+
+	            writer.newLine();
+	        }
+	    }
 	}
 }

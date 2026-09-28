@@ -1,6 +1,7 @@
 package com.numan.Ornek3.Models.dto.request;
 
-import com.numan.Ornek3.Models.VehicleTypes;
+import com.numan.Ornek3.enums.VehicleTypes;
+
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;

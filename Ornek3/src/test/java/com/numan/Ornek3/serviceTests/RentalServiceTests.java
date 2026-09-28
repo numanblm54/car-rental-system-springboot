@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,11 +25,11 @@ import com.numan.Ornek3.Services.CarService;
 import com.numan.Ornek3.Services.CustomerService;
 import com.numan.Ornek3.Services.DailyRentalPriceService;
 import com.numan.Ornek3.Services.RentalService;
+import com.numan.Ornek3.enums.DriversLicenseTypes;
+import com.numan.Ornek3.enums.VehicleTypes;
+import com.numan.Ornek3.exception.MyException;
 import com.numan.Ornek3.mapper.RentalRecordMapper;
 import com.numan.Ornek3.testUtils.TestDataFactory;
-import com.numan.Ornek3.Models.DriversLicenseTypes;
-import com.numan.Ornek3.Models.MyException;
-import com.numan.Ornek3.Models.VehicleTypes;
 import com.numan.Ornek3.Models.dto.domain.CarDTO;
 import com.numan.Ornek3.Models.dto.domain.CustomerDTO;
 import com.numan.Ornek3.Models.dto.domain.DailyRentalPriceDTO;
@@ -138,7 +139,6 @@ public class RentalServiceTests {
     }
     
     
-    
     @Test
     public void testEndRental() {
     
@@ -186,6 +186,7 @@ public class RentalServiceTests {
     	assertTrue(savedCar.getIsItActive());
     }
     
+    
     @Test
     public void testEndRental2() {
     	
@@ -208,5 +209,39 @@ public class RentalServiceTests {
     
     	MyException exception = assertThrows(MyException.class, () -> rentalService.endRental(1, 4000));	
     	assertEquals("The ending kilometer cannot be less than starting kilometer.", exception.getMessage());
+    }
+    
+    
+    @Test
+    public void testEndRental3() {
+    	
+    	Integer id = 1;
+    	Integer finishKm = 500;
+    	when(rentalRecordRepository.findById(id)).thenReturn(Optional.empty());
+    	
+    	MyException exception = assertThrows(MyException.class, () -> rentalService.endRental(id, finishKm));
+    	assertEquals("The record wasn't found.", exception.getMessage());
+    }
+    
+    
+    @Test
+    public void testGetRentalRecordByCustomerd (){
+    	
+    	Integer id = 1;
+    	when(rentalRecordRepository.findByCustomerId(id)).thenReturn(null);
+    	
+    	MyException exception = assertThrows(MyException.class,() -> rentalService.getRentalRecordByCustomerId(id));
+    	assertEquals("The records weren't found.", exception.getMessage());
+    }
+    
+    
+    @Test
+    public void testGetAllRecords () {
+    	
+    	when(rentalRecordRepository.findAll()).thenReturn(Collections.emptyList());
+    	
+    	MyException exception = assertThrows(MyException.class, () -> rentalService.getAllRecords());
+    	assertEquals("There is no any record.", exception.getMessage());
+    	
     }
 }

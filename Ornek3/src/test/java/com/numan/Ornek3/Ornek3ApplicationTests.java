@@ -20,9 +20,9 @@ import com.numan.Ornek3.Models.entity.Car;
 import com.numan.Ornek3.Services.CarService;
 import com.numan.Ornek3.Services.CustomerService;
 import com.numan.Ornek3.Services.RentalService;
-import com.numan.Ornek3.Models.DriversLicenseTypes;
-import com.numan.Ornek3.Models.MyException;
-import com.numan.Ornek3.Models.VehicleTypes;
+import com.numan.Ornek3.enums.DriversLicenseTypes;
+import com.numan.Ornek3.enums.VehicleTypes;
+import com.numan.Ornek3.exception.MyException;
 
 @SpringBootTest(classes= {Ornek3Application.class})
 class Ornek3ApplicationTests {

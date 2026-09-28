@@ -4,8 +4,12 @@ import java.util.List;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import com.numan.Ornek3.Repositories.CarRepository;
+import com.numan.Ornek3.exception.AppException;
+import com.numan.Ornek3.exception.AppExceptionB;
+import com.numan.Ornek3.exception.ErrorCode;
+import com.numan.Ornek3.exception.ErrorCodeB;
+import com.numan.Ornek3.exception.MyException;
 import com.numan.Ornek3.mapper.CarMapper;
-import com.numan.Ornek3.Models.MyException;
 import com.numan.Ornek3.Models.dto.domain.CarDTO;
 import com.numan.Ornek3.Models.entity.Car;
 
@@ -23,7 +27,7 @@ public class CarService {
 	
 	public CarDTO addCar(CarDTO carDTO) {
 		if(carDTO.getModel()<1990) {
-			throw new MyException("The car model year can't be smaller than 1990");
+			throw new AppException(ErrorCode.RESOURCE_NOT_FOUND);
 		}
 		
 		var car = carMapper.mapCarDTOToCar(carDTO);
@@ -44,7 +48,7 @@ public class CarService {
 	
 	 public Car getCarById(Integer id) {
 		    return carRepository.findById(id)
-		            .orElseThrow(() -> new MyException("The car wasn't found."));
+		            .orElseThrow(() -> new AppExceptionB(ErrorCodeB.RESOURCE_NOT_FOUND, "The car wasn't found."));
 	 }
 	 
 	 

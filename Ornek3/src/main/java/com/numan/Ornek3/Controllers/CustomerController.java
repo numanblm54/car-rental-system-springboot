@@ -1,8 +1,7 @@
 package com.numan.Ornek3.controllers;
 
+import java.io.IOException;
 import java.util.List;
-
-
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,17 +9,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.multipart.MultipartFile;
 import com.numan.Ornek3.Models.dto.request.CustomerRequest;
 import com.numan.Ornek3.Models.dto.response.CustomerResponse;
 import com.numan.Ornek3.Services.CustomerService;
 import com.numan.Ornek3.mapper.CustomerMapper;
-
 import jakarta.validation.Valid;
-
-
 import org.springframework.web.bind.annotation.PutMapping;
-
 
 @RestController
 public class CustomerController {
@@ -35,7 +30,7 @@ public class CustomerController {
 
 	
 	@GetMapping("/all-customers-list")
-	public List<CustomerResponse> getAllCustomer(){
+	public List<CustomerResponse> getAllCustomers(){
 		var customerDTOList = customerService.getAllCustomers();
 		var customerResponseList = customerMapper.mapToCustomerResponseList(customerDTOList);
 		return customerResponseList;
@@ -103,5 +98,19 @@ public class CustomerController {
 		var lastCustomerDTO = customerService.updateCustomer(id,customerDTO);
 		var customerResponse = customerMapper.mapToCustomerResponse(lastCustomerDTO);
 		return customerResponse;
+	}
+	
+	@PostMapping("/customers/import")
+	public void importCustomers(@RequestParam("file") MultipartFile file) throws IOException {
+	    customerService.importCustomers(file);
+
+	}
+	
+	@GetMapping("/customers/export")
+	public String exportCustomers() throws IOException {
+
+	    customerService.exportCustomers();
+
+	    return "Customers exported successfully";
 	}
 }
