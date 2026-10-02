@@ -3,9 +3,13 @@ package com.numan.Ornek3.controllers;
 import org.springframework.web.bind.annotation.RestController;
 import com.numan.Ornek3.Services.CarService;
 import com.numan.Ornek3.mapper.CarMapper;
+import com.numan.Ornek3.mapper.DailyRentalPriceMapper;
+import com.numan.Ornek3.Models.dto.domain.CarDTO;
 import com.numan.Ornek3.Models.dto.request.CarRequest;
 import com.numan.Ornek3.Models.dto.response.CarResponse;
+import com.numan.Ornek3.Models.dto.response.CarResponseWithDailyPrice;
 import jakarta.validation.Valid;
+import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,16 +17,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 public class CarController {
 	
 	private final CarService carService;
 	private final CarMapper carMapper;
+	private final DailyRentalPriceMapper dailyRentalPriceMapper;
 	
-	public CarController(CarService carService, CarMapper carMapper) {
+	public CarController(CarService carService, CarMapper carMapper,DailyRentalPriceMapper dailyRentalPriceMapper ) {
 		this.carService = carService;
 		this.carMapper = carMapper;
+		this.dailyRentalPriceMapper = dailyRentalPriceMapper;
 	}
 	
 	
@@ -62,6 +69,14 @@ public class CarController {
 		var carDTO = carMapper.mapCarRequestToCarDTO(carRequest);
 		var savedCarDTO = carService.updateCarById(id,carDTO);
 		var carResponse = carMapper.mapCarDTOToCarResponse(savedCarDTO);
+		return carResponse;
+	}
+	
+	@PostMapping("/add-dailyrentalprice/{carId}")
+	public CarResponseWithDailyPrice addDailyRentalPrice(@PathVariable Integer carId,@RequestParam BigDecimal dailyPrice) {
+		CarDTO carDTO = carService.addCurrentPrice(carId, dailyPrice);
+		
+		var carResponse = carMapper.mapCarDTOToCarResponseWithDailyPrice(carDTO, carDTO.getPrice());
 		return carResponse;
 	}
 }

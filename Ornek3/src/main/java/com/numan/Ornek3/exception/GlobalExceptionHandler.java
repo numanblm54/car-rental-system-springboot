@@ -1,7 +1,5 @@
 package com.numan.Ornek3.exception;
 
-
-import java.time.LocalDateTime;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -22,38 +20,49 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(message));
     }
 
-    @ExceptionHandler(MyException.class)
-    public ResponseEntity<ErrorResponse> handleMyException(MyException ex) {
 
-        if (ex.getMessages() != null) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new ErrorResponse(ex.getMessages()));
-        }
+    @ExceptionHandler(BaseException.class)
+    public ResponseEntity<ErrorResponse> handleBaseException(
+            BaseException ex) {
+
+        ErrorResponse response =
+                new ErrorResponse(
+                        ex.getErrorCode(),
+                        ex.getMessage()
+                );
 
         return ResponseEntity
-                .badRequest()
-                .body(new ErrorResponse(ex.getMessage()));
+                .status(ex.getErrorCode().getHttpStatus())
+                .body(response);
     }
     
-    @ExceptionHandler(AppException.class)
-    public ResponseEntity<ApiErrorResponse> handleAppException(AppException ex){
-    	ApiErrorResponse response = new ApiErrorResponse(ex.getErrorCode(),ex.getErrorCode().getMessage());
+    
+    
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex){
     	
+    	ErrorResponse response = new ErrorResponse(ex.getErrorCode(), ex.getMessage());
     	return ResponseEntity.status(ex.getErrorCode().getHttpStatus())
     			.body(response);
-    	
     }
     
-    @ExceptionHandler(AppExceptionB.class)
-    public ResponseEntity<ApiErrorResponseB> handleAppExceptionB(AppExceptionB ex){
+    
+    @ExceptionHandler(BusinessRuleException.class)
+    public ResponseEntity<ErrorResponse> BusinessRuleException(BusinessRuleException ex){
     	
-    	ApiErrorResponseB response = new ApiErrorResponseB(ex.getErrorCode(), ex.getMessage(), LocalDateTime.now());
-    	
-    	return ResponseEntity.status(ex.getErrorCode().getStatus())
+    	ErrorResponse response = new ErrorResponse(ex.getErrorCode(), ex.getMessage());
+    	return ResponseEntity.status(ex.getErrorCode().getHttpStatus())
     			.body(response);
-    	
     }
+    
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateResourceException(DuplicateResourceException ex){
+    	
+    	ErrorResponse response = new ErrorResponse(ex.getErrorCode(), ex.getMessage());
+    	return ResponseEntity.status(ex.getErrorCode().getHttpStatus())
+    			.body(response);
+    }
+
            
 
 }

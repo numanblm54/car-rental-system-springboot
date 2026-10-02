@@ -10,8 +10,11 @@ public enum ErrorCode {
 	RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "Resource not found"),
 	VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "Validation error."),
 	DUPLİCATE_RESOURCE(HttpStatus.CONFLICT, "Duplicate resource."),
-	BUSSİNES_RULE_VIOLATION(HttpStatus.BAD_REQUEST, "Bussines rule violation.");
-	
+	BUSSİNES_RULE_VIOLATION(HttpStatus.BAD_REQUEST, "Bussines rule violation."),
+    FILE_OPERATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "File operation error."),
+    INVALID_FILE_FORMAT(HttpStatus.BAD_REQUEST, "Invalid file format."),
+    IMPORT_VALIDATION_ERROR( HttpStatus.BAD_REQUEST,  "Import validation error.");
+
 	
 	private final HttpStatus httpStatus;
 	private final String message;

@@ -101,13 +101,13 @@ public class CustomerController {
 	}
 	
 	@PostMapping("/customers/import")
-	public void importCustomers(@RequestParam("file") MultipartFile file) throws IOException {
+	public String importCustomers(@RequestParam MultipartFile file) {
 	    customerService.importCustomers(file);
-
+	    return "Customers imported successfully";
 	}
 	
-	@GetMapping("/customers/export")
-	public String exportCustomers() throws IOException {
+	@GetMapping("/export")
+	public String exportCustomers() {
 
 	    customerService.exportCustomers();
 

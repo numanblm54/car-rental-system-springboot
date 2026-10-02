@@ -1,10 +1,14 @@
 package com.numan.Ornek3.mapper;
 
+import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import com.numan.Ornek3.Models.dto.domain.CarDTO;
+import com.numan.Ornek3.Models.dto.domain.DailyRentalPriceDTO;
 import com.numan.Ornek3.Models.dto.request.CarRequest;
 import com.numan.Ornek3.Models.dto.response.CarResponse;
+import com.numan.Ornek3.Models.dto.response.CarResponseWithDailyPrice;
+import com.numan.Ornek3.Models.dto.response.DailyRentalPriceResponse;
 import com.numan.Ornek3.Models.entity.Car;
 
 @Component
@@ -17,6 +21,28 @@ public class CarMapper {
 				.model(car.getModel())
 				.km(car.getKm())
 				.vehicleType(car.getVehicleType())
+				.build();
+	}
+	
+	public CarDTO mapCarToCarDtoWithPriceDto(Car car , BigDecimal price) {
+		return CarDTO.builder()
+				.id(car.getId())
+				.name(car.getName())
+				.model(car.getModel())
+				.km(car.getKm())
+				.vehicleType(car.getVehicleType())
+				.price(price)
+				.build();
+	}
+	
+
+	
+	public CarResponseWithDailyPrice mapCarDTOToCarResponseWithDailyPrice(CarDTO carDTO, BigDecimal price) {
+		return CarResponseWithDailyPrice.builder()
+				.name(carDTO.getName())
+				.model(carDTO.getModel())
+				.vehicleType(carDTO.getVehicleType())
+				.price(price)
 				.build();
 	}
 	

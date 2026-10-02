@@ -23,12 +23,12 @@ public class DailyRentalPriceController {
 	}
 	
 	
-	@PostMapping("/add-dailyrentalprice/{carId}")
-	public DailyRentalPriceResponse addDailyRentalPrice(@PathVariable Integer carId,@RequestParam BigDecimal dailyPrice) {
-		var priceDTO = dailyRentalPriceService.addDailyRentalPrice(carId, dailyPrice);
-		var priceResponse = dailyRentalPriceMapper.mapDailyRentalPriceDTOToResponse(priceDTO);
-		return priceResponse;
-	}
+//	@PostMapping("/add-dailyrentalprice/{carId}")
+//	public DailyRentalPriceResponse addDailyRentalPrice(@PathVariable Integer carId,@RequestParam BigDecimal dailyPrice) {
+//		var priceDTO = dailyRentalPriceService.addDailyRentalPrice(carId, dailyPrice);
+//		var priceResponse = dailyRentalPriceMapper.mapDailyRentalPriceDTOToResponse(priceDTO);
+//		return priceResponse;
+//	}
 	
 	
 	@GetMapping("/get-dailyrentalprice/{carId}")

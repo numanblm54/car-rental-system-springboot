@@ -93,6 +93,7 @@ public class RentalServiceTests {
     	assertEquals(recordDTO.getCar().getName(), result.getCar().getName());
     	assertEquals(recordDTO.getCustomer().getName(), result.getCustomer().getName());
     	assertEquals(recordDTO.getCustomer().getSurName(), result.getCustomer().getSurName());
+    	assertEquals(recordDTO.getStartingKm(),result.getStartingKm());
     	assertFalse(savedCar.getIsItActive());
     }
     

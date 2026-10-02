@@ -19,9 +19,12 @@ import com.numan.Ornek3.Models.entity.RentalRecord;
 import com.numan.Ornek3.Repositories.CustomerRepository;
 import com.numan.Ornek3.Repositories.RentalRecordRepository;
 import com.numan.Ornek3.enums.DriversLicenseTypes;
-import com.numan.Ornek3.exception.AppException;
+import com.numan.Ornek3.exception.BaseException;
+import com.numan.Ornek3.exception.DuplicateResourceException;
 import com.numan.Ornek3.exception.ErrorCode;
-import com.numan.Ornek3.exception.MyException;
+import com.numan.Ornek3.exception.FileOperationException;
+import com.numan.Ornek3.exception.ImportValidationException;
+import com.numan.Ornek3.exception.ResourceNotFoundException;
 import com.numan.Ornek3.mapper.CarMapper;
 import com.numan.Ornek3.mapper.CustomerMapper;
 import com.numan.Ornek3.mapper.RentalRecordMapper;
@@ -50,6 +53,9 @@ public class CustomerService {
     
 	public List<CustomerDTO> getAllCustomers(){
 		List<Customer> customerList=customerRepository.findAll();
+		if(customerList.isEmpty()) {
+			throw new ResourceNotFoundException(ErrorCode.RESOURCE_NOT_FOUND, "There is no customer.");
+		}
 		var customerDTOList = customerMapper.mapToCustomerDTOList(customerList);
 		return customerDTOList;
 	}
@@ -57,14 +63,14 @@ public class CustomerService {
 	
 	public Customer getCustomerById(Integer id) { 
 		var customer = customerRepository .findById(id)
-					.orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
+					.orElseThrow(() -> new ResourceNotFoundException(ErrorCode.RESOURCE_NOT_FOUND, "The customer wasn't found."));
 		return customer;
 	}
 	
 	
 	public CustomerDTO getCustomerDTOById(Integer id) { 
 		var customer=customerRepository.findById(id)
-				.orElseThrow(() -> new MyException("The customer wasn't found."));
+				.orElseThrow(() -> new ResourceNotFoundException(ErrorCode.RESOURCE_NOT_FOUND, "The customer wasn't found."));
 		var customerDTO = customerMapper.mapToCustomerDTO(customer);
 		return customerDTO;
 	}
@@ -85,7 +91,7 @@ public class CustomerService {
 	
 	public CustomerDTO addCustomer(CustomerDTO customerDTO) {
 		if (getCustomerByNationalCardNo(customerDTO.getNationalCardNo()) != null) {
-		    throw new MyException("There is a customer who uses this national card no.");
+		    throw new DuplicateResourceException(ErrorCode.DUPLİCATE_RESOURCE, "There is already a customer with this national card number.");
 		}
 	
 		var customer = customerMapper.mapToCustomer(customerDTO);
@@ -105,7 +111,7 @@ public class CustomerService {
 		Customer customer=getCustomerByNationalCardNo(customerDTO.getNationalCardNo());
 		Customer oldCustomer = getCustomerById(id);
 		if(customer != null && !oldCustomer.getId().equals(customer.getId())) {
-			throw new MyException("There is a customer who uses this national card no.");
+			throw new DuplicateResourceException(ErrorCode.DUPLİCATE_RESOURCE, "There is already a customer with this national card number.");
 		}	
 		BeanUtils.copyProperties(customerDTO, oldCustomer,"id");
 		customerRepository.save(oldCustomer);
@@ -116,6 +122,9 @@ public class CustomerService {
 	
 	public List<CustomerDTO> getCustomerByName(String name) {
 		List<Customer> customerList = customerRepository.findByName(name);
+		if(customerList.isEmpty()) {
+			throw new ResourceNotFoundException(ErrorCode.RESOURCE_NOT_FOUND, "There is no customer with this name.");
+		}
 		var customerDTOList = customerMapper.mapToCustomerDTOList(customerList);
 		return customerDTOList;
 	}
@@ -123,6 +132,9 @@ public class CustomerService {
 	
 	public List<CustomerDTO> getCustomerBySurName(String surName) {
 		List<Customer> customerList = customerRepository.findBySurName(surName);
+		if(customerList.isEmpty()) {
+			throw new ResourceNotFoundException(ErrorCode.RESOURCE_NOT_FOUND, "There is no customer with this surname.");
+		}
 		var customerDTOList = customerMapper.mapToCustomerDTOList(customerList);
 		return customerDTOList;
 	}
@@ -132,7 +144,7 @@ public class CustomerService {
 		Customer customer = getCustomerById(customerId);
 		List<RentalRecord> records = rentalRecordRepository.findByCustomerId(customerId);
 		if (records==null || records.isEmpty()) {
-			throw new MyException("There is no rental for this customer.");
+			throw new ResourceNotFoundException(ErrorCode.RESOURCE_NOT_FOUND, "There is no rental for this customer.");
 		}
 
 		var customerDTO = customerMapper.mapToCustomerDTO(customer);
@@ -148,7 +160,7 @@ public class CustomerService {
 
 		List<RentalRecord> records = rentalRecordRepository.findByCustomerId(customerId);
 		if (records==null || records.isEmpty()) {
-			throw new MyException("There is no rental for this customer.");
+			throw new ResourceNotFoundException(ErrorCode.RESOURCE_NOT_FOUND, "There is no rental for this customer.");
 		}
 		
 		var customerDTO = customerMapper.mapToCustomerDTO(customer);
@@ -160,82 +172,130 @@ public class CustomerService {
 		return customerDTO;
 	}
 	
-	public void importCustomers(MultipartFile file) throws IOException {
+	public void importCustomers(MultipartFile file)  {
 		 
 		List<String> errors = new ArrayList<>();
-
-	    BufferedReader reader =
-	            new BufferedReader(
-	                    new InputStreamReader(file.getInputStream()));
-
-	    String line;
-
-	    reader.readLine();
 
 	    List<Customer> customers = new ArrayList<>();
 
 	    int batchSize = 500;
 
-	    while ((line = reader.readLine()) != null) {
+	    try (BufferedReader reader =
+	                 new BufferedReader(
+	                         new InputStreamReader(
+	                                 file.getInputStream()))) {
 
-	        String[] parts = line.split(",");
+	        
+	        reader.readLine();
 
-	        CustomerDTO customerDTO = new CustomerDTO();
+	        String line;
 
-	        customerDTO.setName(parts[0]);
-	        customerDTO.setSurName(parts[1]);
-	        customerDTO.setAge(Integer.parseInt(parts[2]));
-	        customerDTO.setNationalCardNo(parts[3]);
-	        customerDTO.setDriversLicenseType(
-	                DriversLicenseTypes.valueOf(parts[4])
-	        );
+	        while ((line = reader.readLine()) != null) {
 
-	        try {
+	            String[] parts = line.split(",");
 
-	            if (getCustomerByNationalCardNo(
-	                    customerDTO.getNationalCardNo()) != null) {
+	            CustomerDTO customerDTO = new CustomerDTO();
 
-	                throw new MyException(
-	                        "There is a customer who uses this national card no."
+	            customerDTO.setName(parts[0]);
+
+	            customerDTO.setSurName(parts[1]);
+
+	            customerDTO.setAge(
+	                    Integer.parseInt(parts[2])
+	            );
+
+	            customerDTO.setNationalCardNo(parts[3]);
+
+	            customerDTO.setDriversLicenseType(
+	                    DriversLicenseTypes.valueOf(parts[4])
+	            );
+
+	            try {
+
+	                
+	                if (getCustomerByNationalCardNo(
+	                        customerDTO.getNationalCardNo()) != null) {
+
+	                    throw new DuplicateResourceException(
+	                            ErrorCode.DUPLİCATE_RESOURCE,
+	                            "There is a customer who uses this national card no."
+	                    );
+	                }
+
+	                
+	                Customer customer =
+	                        customerMapper.mapToCustomer(customerDTO);
+
+	                
+	                customers.add(customer);
+
+	                
+	                if (customers.size() == batchSize) {
+
+	                    customerRepository.saveAll(customers);
+
+	                    
+	                    customers.clear();
+	                }
+
+	            } catch (BaseException e) {
+
+	                
+	                errors.add(
+	                        customerDTO.getNationalCardNo()
+	                                + ": "
+	                                + e.getMessage()
 	                );
 	            }
-
-	            Customer customer = customerMapper.mapToCustomer(customerDTO);
-
-	            customers.add(customer);
-
-	            if (customers.size() == batchSize) {
-
-	                customerRepository.saveAll(customers);
-
-	                customers.clear();
-	            }
-
-	        } catch (MyException e) {
-
-	            errors.add(
-	                    customerDTO.getNationalCardNo()
-	                    + ": "
-	                    + e.getMessage()
-	            );
 	        }
+
+	        
+	        if (!customers.isEmpty()) {
+
+	            customerRepository.saveAll(customers);
+	        }
+
+	    } catch (IOException e) {
+
+	        
+	        throw new FileOperationException(
+	                ErrorCode.FILE_OPERATION_ERROR,
+	                "Customer import failed because the file could not be read."
+	        );
+
+	    } catch (NumberFormatException e) {
+
+	        
+	        throw new ImportValidationException(
+	                ErrorCode.INVALID_FILE_FORMAT,
+	                "Customer import failed because the CSV contains an invalid number."
+	        );
+
+	    } catch (IllegalArgumentException e) {
+
+	        
+	        throw new ImportValidationException(
+	                ErrorCode.INVALID_FILE_FORMAT,
+	                "Customer import failed because the CSV contains an invalid value."
+	        );
 	    }
 
-	    if (!customers.isEmpty()) {
-	        customerRepository.saveAll(customers);
-	    }
-
+	    
 	    if (!errors.isEmpty()) {
-	        throw new MyException(errors);
+
+	        throw new ImportValidationException(
+	                ErrorCode.IMPORT_VALIDATION_ERROR,
+	                String.join(" | ", errors)
+	        );
 	    }
-	}
+	  }
 	
-	public void exportCustomers() throws IOException {
+	public void exportCustomers() {
 
 	    List<Customer> customers = customerRepository.findAll();
 
 	    Path path = Paths.get("customers.csv");
-	    
+
 	    System.out.println("Dosya yolu: " + path.toAbsolutePath());
 
 	    try (BufferedWriter writer = Files.newBufferedWriter(path)) {
@@ -255,6 +315,14 @@ public class CustomerService {
 
 	            writer.newLine();
 	        }
+
+	    } catch (IOException e) {
+
+	        throw new FileOperationException(
+	                ErrorCode.FILE_OPERATION_ERROR,
+	                "Customer export failed because the file could not be written.",
+	                e
+	        );
 	    }
 	}
 }

@@ -13,9 +13,9 @@ import com.numan.Ornek3.Models.entity.RentalRecord;
 import com.numan.Ornek3.Repositories.RentalRecordRepository;
 import com.numan.Ornek3.enums.DriversLicenseTypes;
 import com.numan.Ornek3.enums.VehicleTypes;
-import com.numan.Ornek3.exception.AppException;
+import com.numan.Ornek3.exception.BusinessRuleException;
 import com.numan.Ornek3.exception.ErrorCode;
-import com.numan.Ornek3.exception.MyException;
+import com.numan.Ornek3.exception.ResourceNotFoundException;
 import com.numan.Ornek3.mapper.RentalRecordMapper;
 
 @Service
@@ -42,7 +42,7 @@ public class RentalService {
 	
 	public RentalRecord getRentalRecordById(Integer id) {
 		return rentalRecordRepository.findById(id)
-				.orElseThrow(() -> new MyException("The record wasn't found.")); 
+				.orElseThrow(() -> new ResourceNotFoundException(ErrorCode.RESOURCE_NOT_FOUND, "The record wasn't found.")); 
 	}
 	
 	
@@ -56,7 +56,7 @@ public class RentalService {
 	public List<RentalRecordDTO> getAllRecords(){
 		List<RentalRecord> recordList=rentalRecordRepository.findAll();
 		if(recordList.isEmpty()) {
-			throw new MyException("There is no any record.");
+			throw new ResourceNotFoundException(ErrorCode.RESOURCE_NOT_FOUND, "There is no record.");
 		}
 		var recordDTOList = rentalRecordMapper.mapRentalRecordListToRentalRecordDTOList(recordList);
 		return recordDTOList;		
@@ -66,7 +66,7 @@ public class RentalService {
 	public List<RentalRecordDTO> getRentalRecordByCustomerId(Integer id) {
 	    List<RentalRecord> recordList = rentalRecordRepository.findByCustomerId(id);
 	    if (recordList.isEmpty()) {
-	        throw new MyException("The records weren't found.");
+	        throw new ResourceNotFoundException(ErrorCode.RESOURCE_NOT_FOUND, "The records weren't found.");
 	    }
 	    
 	    var recordDTOList = rentalRecordMapper.mapRentalRecordListToRentalRecordDTOList(recordList);
@@ -80,31 +80,31 @@ public class RentalService {
 		DailyRentalPrice price=dailyRentalPriceService.getCurrentPrice(carId);
 		
 		if(car.getIsItActive()==false) {
-			throw new AppException(ErrorCode.DUPLİCATE_RESOURCE);
+			throw new BusinessRuleException(ErrorCode.DUPLİCATE_RESOURCE, "The car is already being used.");
 		}
 		
 		if(price==null) {
-			throw new AppException(ErrorCode.RESOURCE_NOT_FOUND);
+			throw new ResourceNotFoundException(ErrorCode.RESOURCE_NOT_FOUND, "There is no active price for this car.");
 		}
 	
 		if (customer.getDriversLicenseType() == DriversLicenseTypes.A) {
 
 			if (car.getVehicleType() == VehicleTypes.Car || car.getVehicleType() == VehicleTypes.Truck) {
-		            throw new MyException("A person who has a type A driver's license cannot drive a car or a truck.");
+		            throw new BusinessRuleException(ErrorCode.BUSSİNES_RULE_VIOLATION,"A person who has a type A driver's license cannot drive a car or a truck.");
 		    }
 		} 
 		    
 		else if (customer.getDriversLicenseType() == DriversLicenseTypes.B) {
 
 			if (car.getVehicleType() == VehicleTypes.Motorcycle || car.getVehicleType() == VehicleTypes.Truck) {
-		        	throw new MyException("A person who has a type B driver's license cannot drive a motorcycle or a truck.");
+		        	throw new BusinessRuleException(ErrorCode.BUSSİNES_RULE_VIOLATION,"A person who has a type B driver's license cannot drive a motorcycle or a truck.");
 			}
 		} 
 		
 		else if (customer.getDriversLicenseType() == DriversLicenseTypes.C) {
 
 			if (car.getVehicleType() == VehicleTypes.Motorcycle ) {
-		        	throw new MyException("A person who has a type C driver's license cannot drive a motorcycle.");    
+		        	throw new BusinessRuleException(ErrorCode.BUSSİNES_RULE_VIOLATION,"A person who has a type C driver's license cannot drive a motorcycle.");    
 			}
 		}
 		
@@ -125,7 +125,7 @@ public class RentalService {
 	public RentalRecordDTO endRental(Integer id, Integer finishKm) {
 		RentalRecord rentalRecord=getRentalRecordById(id);
 		if(finishKm<rentalRecord.getStartingKm()) {
-			throw new MyException("The ending kilometer cannot be less than starting kilometer.");
+			throw new BusinessRuleException(ErrorCode.BUSSİNES_RULE_VIOLATION,"The ending kilometer cannot be less than starting kilometer.");
 		}
 		
 		rentalRecord.setEndingKm(finishKm);
